@@ -2,12 +2,18 @@ package pl.najlepszagrupa.budget.model;
 
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 
 @Entity
 @Table(name = "users")
-public class User
-{
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -15,10 +21,13 @@ public class User
     private String password;
     private String email;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     public User() {
     }
 
-    public User(Integer id,String username, String password, String email) {
+    public User(Integer id, String username, String password, String email) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -41,6 +50,11 @@ public class User
         this.username = username;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE" + role.name()));
+    }
+
     public String getPassword() {
         return password;
     }
@@ -55,5 +69,10 @@ public class User
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    enum Role {
+        USER,
+        ADMIN
     }
 }

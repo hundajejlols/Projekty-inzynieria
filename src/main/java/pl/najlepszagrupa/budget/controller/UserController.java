@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.najlepszagrupa.budget.model.User;
 import pl.najlepszagrupa.budget.repository.UserRepository;
+import pl.najlepszagrupa.budget.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,18 +13,20 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
+
     @Autowired
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping
     public List<User> getUsers() {
-        return userRepository.findAll();
+        return userService.getUsers();
     }
+
     @PostMapping
     public User addUser(@RequestBody User user) {
-        return userRepository.save(user);
+        return userService.addUser(user);
     }
 }
