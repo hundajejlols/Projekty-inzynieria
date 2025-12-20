@@ -18,6 +18,7 @@ public class UserController {
         this.userService = userService;
     }
 
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         try {
@@ -31,13 +32,17 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
-        boolean isValid = userService.checkCredentials(
-                credentials.get("username"),
-                credentials.get("password")
-        );
+        String username = credentials.get("username");
+        String password = credentials.get("password");
+
+        boolean isValid = userService.checkCredentials(username, password);
 
         if (isValid) {
-            return ResponseEntity.ok(Map.of("message", "Zalogowano pomyślnie"));
+            // Zwracamy mapę z komunikatem i nazwą użytkownika
+            return ResponseEntity.ok(Map.of(
+                    "message", "Zalogowano pomyślnie",
+                    "username", username
+            ));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("error", "Nieprawidłowe dane logowania"));
