@@ -12,11 +12,17 @@ public class ReceiptService {
     @Autowired
     private ReceiptRepository receiptRepository;
 
+    @Autowired
+    private UserService userService;
+
     public List<Receipt> getAllReceipts() {
         return receiptRepository.findAll();
     }
 
-    public Receipt saveReceipt(Receipt receipt) {
+    public Receipt saveReceipt(Receipt receipt, String username) {
+        // Automatyczne odejmowanie salda użytkownika
+        userService.deductBalance(username, receipt.getTotalAmount());
+
         if (receipt.getItems() != null) {
             receipt.getItems().forEach(item -> item.setReceipt(receipt));
         }

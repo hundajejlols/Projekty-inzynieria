@@ -20,9 +20,10 @@ public class ReceiptController {
         return receiptService.getAllReceipts();
     }
 
-    @PostMapping
-    public Receipt addReceipt(@RequestBody Receipt receipt) {
-        return receiptService.saveReceipt(receipt);
+    // Poprawiona metoda: przyjmuje username z URL
+    @PostMapping("/{username}")
+    public Receipt addReceipt(@RequestBody Receipt receipt, @PathVariable String username) {
+        return receiptService.saveReceipt(receipt, username);
     }
 
     @DeleteMapping("/{id}")

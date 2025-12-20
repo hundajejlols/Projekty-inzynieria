@@ -1,31 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import AddReceiptModal from '../addReceipts/AddReceiptModal'; // Import Twojego nowego modala
+import AddReceiptModal from '../addReceipts/AddReceiptModal';
 import './Dashboard.css';
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const [transactions, setTransactions] = useState([]);
+    const [balance, setBalance] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    
-    // Pobieramy imię z localStorage, jeśli go nie ma, używamy domyślnego "Użytkownik"
-    const [userName, setUserName] = useState(localStorage.getItem('username') || 'Użytkownik');
+    const userName = localStorage.getItem('username') || 'Użytkownik';
 
-    const fetchReceipts = () => {
-        axios.get('http://localhost:8080/api/receipts')
-            .then(response => {
-                setTransactions(response.data.slice(0, 5));
-            })
-            .catch(err => console.error("Błąd pobierania danych:", err));
+    const fetchData = async () => {
+        try {
+            // Pobieramy paragony
+            const receiptsRes = await axios.get('http://localhost:8080/api/receipts');
+            setTransactions(receiptsRes.data.slice(0, 5));
+            
+            // Pobieramy aktualne saldo użytkownika
+            const userRes = await axios.get(`http://localhost:8080/api/user/${userName}`);
+            setBalance(userRes.data.balance);
+        } catch (err) {
+            console.error("Błąd pobierania danych:", err);
+        }
     };
 
     useEffect(() => {
-        fetchReceipts();
+        fetchData();
     }, []);
 
+    const handleAddIncome = async () => {
+        const amount = prompt("Wpisz kwotę wypłaty/przychodu:");
+        if (amount && !isNaN(amount)) {
+            try {
+                await axios.post('http://localhost:8080/api/user/add-balance', {
+                    username: userName,
+                    amount: parseFloat(amount)
+                });
+                fetchData(); // Odświeżamy dane (saldo)
+            } catch (err) {
+                alert("Błąd podczas dodawania środków");
+            }
+        }
+    };
+
     const handleLogout = () => {
-        localStorage.removeItem('username'); // Usuwamy imię przy wylogowaniu
+        localStorage.removeItem('username');
         navigate('/login');
     };
 
@@ -36,30 +56,29 @@ const Dashboard = () => {
                 <nav className="sidebar-links">
                     <div className="s-link active">📊 Pulpit</div>
                     <div className="s-link" onClick={() => navigate('/transactions')}>💸 Transakcje</div>
-                    <div className="s-link">🎯 Cele</div>
                 </nav>
                 <button className="s-logout" onClick={handleLogout}>Wyloguj</button>
             </aside>
 
             <main className="dashboard-main">
                 <header className="dash-header">
-                    {/* Tutaj imię jest już dynamiczne */}
                     <h1>Cześć, {userName}! 👋</h1>
-                    <p>Oto Twój aktualny stan finansów.</p>
+                    <p>Twoje finanse pod kontrolą.</p>
                 </header>
 
                 <div className="stat-cards">
-                    {/* Karty statystyk pozostają bez zmian */}
-                    <div className="stat-card"><span>Saldo</span><h3>12,450 PLN</h3></div>
-                    <div className="stat-card exp"><span>Wydatki</span><h3>3,200 PLN</h3></div>
-                    <div className="stat-card sav"><span>Oszczędności</span><h3>5,000 PLN</h3></div>
+                    <div className="stat-card">
+                        <span>Aktualne Saldo</span>
+                        <h3>{balance.toFixed(2)} PLN</h3>
+                    </div>
+                    {/* Reszta kart... */}
                 </div>
 
                 <div className="dash-grid">
                     <section className="recent-activity">
                         <div className="section-header-flex">
                             <h3>Ostatnie paragony</h3>
-                            <button className="text-btn" onClick={() => navigate('/transactions')}>Szczegóły</button>
+                            <button className="text-btn" onClick={() => navigate('/transactions')}>Zobacz wszystkie</button>
                         </div>
                         <div className="t-list">
                             {transactions.map(t => (
@@ -68,7 +87,7 @@ const Dashboard = () => {
                                         <strong>{t.shopName}</strong>
                                         <small>{t.date}</small>
                                     </div>
-                                    <strong>{t.totalAmount} PLN</strong>
+                                    <strong>-{t.totalAmount.toFixed(2)} PLN</strong>
                                 </div>
                             ))}
                         </div>
@@ -76,20 +95,18 @@ const Dashboard = () => {
 
                     <section className="quick-tools">
                         <h3>Szybkie akcje</h3>
-                        {/* NAPRAWIONY GUZIK: teraz otwiera modal */}
-                        <button className="btn-add" onClick={() => setIsModalOpen(true)}>
-                            + Dodaj paragon
+                        <button className="btn-add" onClick={() => setIsModalOpen(true)}>+ Dodaj paragon</button>
+                        <button className="btn-income" onClick={handleAddIncome} style={{backgroundColor: '#10b981', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', marginTop: '10px', width: '100%'}}>
+                            💰 Dodaj wypłatę
                         </button>
-                        <button className="btn-rem">Eksportuj PDF</button>
                     </section>
                 </div>
             </main>
 
-            {/* Dołączamy Modal do kodu */}
             <AddReceiptModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
-                onRefresh={fetchReceipts} 
+                onRefresh={fetchData} 
             />
         </div>
     );

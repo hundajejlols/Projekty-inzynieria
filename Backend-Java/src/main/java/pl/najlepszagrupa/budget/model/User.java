@@ -14,7 +14,9 @@ public class User {
     private String email;
     private String password;
 
-    // Gettery i Settery
+    // Dodane pole salda z domyślną wartością 0.0
+    private Double balance = 0.0;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUsername() { return username; }
@@ -23,4 +25,6 @@ public class User {
     public void setEmail(String email) { this.email = email; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+    public Double getBalance() { return balance; }
+    public void setBalance(Double balance) { this.balance = balance; }
 }

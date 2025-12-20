@@ -1,104 +1,75 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './Transactions.css';
+import './Transactions.css'; // Używamy tych samych stylów dla spójności
 
-const TransactionsPage = () => {
+const Transactions = () => {
     const [receipts, setReceipts] = useState([]);
-    const [expandedId, setExpandedId] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+    const userName = localStorage.getItem('username');
 
-    // Pobieranie danych z backendu
-    const fetchReceipts = () => {
-        setLoading(true);
-        axios.get('http://localhost:8080/api/receipts')
-            .then(res => {
-                setReceipts(res.data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("Błąd pobierania transakcji:", err);
-                setLoading(false);
-            });
+    const fetchReceipts = async () => {
+        try {
+            const res = await axios.get('http://localhost:8080/api/receipts');
+            setReceipts(res.data);
+        } catch (err) {
+            console.error("Błąd ładowania transakcji");
+        }
     };
 
     useEffect(() => {
         fetchReceipts();
     }, []);
 
-    const toggleExpand = (id) => {
-        setExpandedId(expandedId === id ? null : id);
-    };
-
-    // Funkcja usuwania transakcji
-    const handleDelete = async (id, e) => {
-        e.stopPropagation(); // Zapobiega rozwijaniu wiersza przy kliknięciu w przycisk usuń
+    const handleDelete = async (id) => {
         if (window.confirm("Czy na pewno chcesz usunąć ten paragon?")) {
             try {
                 await axios.delete(`http://localhost:8080/api/receipts/${id}`);
-                // Aktualizujemy stan lokalny po udanym usunięciu
-                setReceipts(receipts.filter(receipt => receipt.id !== id));
+                fetchReceipts(); // Odśwież listę po usunięciu
             } catch (err) {
-                console.error("Błąd podczas usuwania:", err);
-                alert("Nie udało się usunąć paragonu.");
+                alert("Błąd podczas usuwania");
             }
         }
     };
 
-    if (loading) return <div className="transactions-container">Ładowanie paragonów...</div>;
-
     return (
-        <div className="transactions-container">
-            <div className="header-flex">
-                <h2>Historia zakupów</h2>
-                <button className="refresh-btn" onClick={fetchReceipts}>Odśwież</button>
-            </div>
+        <div className="dashboard-wrapper">
+            <aside className="sidebar-container">
+                <div className="sidebar-header" onClick={() => navigate('/dashboard')} style={{cursor:'pointer'}}>💰 BudżetDomowy</div>
+                <nav className="sidebar-links">
+                    <div className="s-link" onClick={() => navigate('/dashboard')}>📊 Pulpit</div>
+                    <div className="s-link active">💸 Transakcje</div>
+                </nav>
+            </aside>
 
-            <div className="receipts-list">
-                {receipts.length > 0 ? receipts.map(receipt => (
-                    <div key={receipt.id} className={`receipt-item ${expandedId === receipt.id ? 'active' : ''}`}>
-                        <div className="receipt-header" onClick={() => toggleExpand(receipt.id)}>
-                            <div className="receipt-main-info">
-                                <strong>{receipt.shopName}</strong>
-                                <small>{receipt.date}</small>
+            <main className="dashboard-main">
+                <header className="dash-header">
+                    <h1>Historia Transakcji</h1>
+                </header>
+
+                <div className="t-list" style={{background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)'}}>
+                    {receipts.map(r => (
+                        <div key={r.id} className="t-row" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 0', borderBottom: '1px solid #f1f5f9'}}>
+                            <div className="t-info">
+                                <strong>{r.shopName}</strong>
+                                <p style={{margin: 0, fontSize: '0.85rem', color: '#64748b'}}>{r.date}</p>
                             </div>
-                            <div className="receipt-summary-info">
-                                <span className="receipt-amount">{receipt.totalAmount} PLN</span>
+                            <div style={{display: 'flex', alignItems: 'center', gap: '20px'}}>
+                                <strong style={{color: '#e11d48'}}>-{r.totalAmount.toFixed(2)} PLN</strong>
                                 <button 
-                                    className="btn-delete-small" 
-                                    onClick={(e) => handleDelete(receipt.id, e)}
-                                    title="Usuń paragon"
+                                    onClick={() => handleDelete(r.id)}
+                                    style={{backgroundColor: '#fee2e2', color: '#ef4444', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'}}
                                 >
-                                    🗑️
+                                    Usuń
                                 </button>
-                                <span className="arrow">{expandedId === receipt.id ? '▲' : '▼'}</span>
                             </div>
                         </div>
-
-                        {expandedId === receipt.id && (
-                            <div className="receipt-details">
-                                <div className="details-header">Lista produktów:</div>
-                                <ul>
-                                    {receipt.items && receipt.items.map((item, idx) => (
-                                        <li key={idx}>
-                                            <span className="product-name">{item.productName}</span>
-                                            <span className="product-price">{item.price.toFixed(2)} PLN</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                                <div className="receipt-footer-total">
-                                    <strong>Suma: {receipt.totalAmount.toFixed(2)} PLN</strong>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )) : (
-                    <div className="no-data">
-                        <p>Brak paragonów w bazie danych.</p>
-                    </div>
-                )}
-            </div>
+                    ))}
+                    {receipts.length === 0 && <p>Brak transakcji w historii.</p>}
+                </div>
+            </main>
         </div>
     );
 };
 
-export default TransactionsPage;
+export default Transactions;

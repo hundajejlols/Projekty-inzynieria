@@ -26,8 +26,10 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Dodajemy endpointy paragonów do publicznego dostępu
-                        .requestMatchers("/api/register", "/api/login", "/api/receipts/**").permitAll()
+                        // ODBLOKOWANE ŚCIEŻKI:
+                        .requestMatchers("/api/register", "/api/login").permitAll()
+                        .requestMatchers("/api/receipts/**").permitAll()
+                        .requestMatchers("/api/user/**").permitAll() // To naprawia błąd 401 przy saldzie
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -40,7 +42,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Adres Vite
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cache-Control"));
         configuration.setAllowCredentials(true);

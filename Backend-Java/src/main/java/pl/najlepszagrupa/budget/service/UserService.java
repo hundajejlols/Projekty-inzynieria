@@ -16,6 +16,11 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Użytkownik nie istnieje"));
+    }
+
     public User addUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
@@ -25,5 +30,19 @@ public class UserService {
         return userRepository.findByUsername(username)
                 .map(user -> passwordEncoder.matches(password, user.getPassword()))
                 .orElse(false);
+    }
+
+    // Dodawanie wypłaty
+    public User addBalance(String username, Double amount) {
+        User user = findByUsername(username);
+        user.setBalance(user.getBalance() + amount);
+        return userRepository.save(user);
+    }
+
+    // Odejmowanie przy zakupach
+    public void deductBalance(String username, Double amount) {
+        User user = findByUsername(username);
+        user.setBalance(user.getBalance() - amount);
+        userRepository.save(user);
     }
 }
