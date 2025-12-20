@@ -1,68 +1,114 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import '../register/register.css';
+import { useNavigate, Link } from 'react-router-dom';
+import './Register.css';
 
 const RegisterPage = () => {
-    const [formData, setFormData] = useState({ username: '', email: '', password: '' });
-    const [message, setMessage] = useState('');
+    const [userData, setUserData] = useState({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setUserData({ ...userData, [e.target.name]: e.target.value });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMessage(''); // Resetowanie komunikatu
+        setError('');
 
+        // Prosta walidacja haseł
+        if (userData.password !== userData.confirmPassword) {
+            return setError('Hasła nie są identyczne');
+        }
+
+        setLoading(true);
         try {
-            // [1] Wysyłamy dane na adres zgodny z Twoim SecurityConfig i UserController
-            const response = await axios.post('http://localhost:8080/api/register', formData);
+            await axios.post('http://localhost:8080/api/register', {
+                username: userData.username,
+                email: userData.email,
+                password: userData.password
+            });
             
-            console.log("Rejestracja udana:", response.data);
-            setMessage('Konto zostało utworzone! Przekierowanie do logowania...');
-            
-            // [2] Po krótkiej chwili przekierowujemy użytkownika do strony logowania
-            setTimeout(() => {
-                navigate('/login');
-            }, 2000);
-
-        } catch (error) {
-            console.error("Błąd rejestracji:", error);
-            // Wyświetlamy błąd z backendu lub ogólny komunikat
-            const errorMsg = error.response?.data?.error || 'Wystąpił błąd podczas rejestracji.';
-            setMessage(errorMsg);
+            // Po sukcesie przekieruj do logowania
+            navigate('/login', { state: { message: 'Konto utworzone! Zaloguj się.' } });
+        } catch (err) {
+            setError(err.response?.data?.message || 'Błąd rejestracji. Spróbuj inny login/email.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="auth-container">
-            <form className="auth-form" onSubmit={handleSubmit}>
-                <h2>Rejestracja</h2>
-                
-                {/* Miejsce na komunikaty o błędach lub sukcesie */}
-                {message && <p className="auth-message">{message}</p>}
-                
-                <input 
-                    name="username" 
-                    placeholder="Użytkownik" 
-                    required
-                    onChange={(e) => setFormData({...formData, username: e.target.value})} 
-                />
-                <input 
-                    name="email" 
-                    type="email" 
-                    placeholder="Email" 
-                    required
-                    onChange={(e) => setFormData({...formData, email: e.target.value})} 
-                />
-                <input 
-                    name="password" 
-                    type="password" 
-                    placeholder="Hasło" 
-                    required
-                    onChange={(e) => setFormData({...formData, password: e.target.value})} 
-                />
-                <button type="submit">Stwórz konto</button>
-                <p>Masz już konto? <a href="/login">Zaloguj się</a></p>
-            </form>
+        <div className="register-container">
+            <div className="register-card">
+                <form className="register-form" onSubmit={handleSubmit}>
+                    <div className="brand-icon">📈</div>
+                    <h2>Dołącz do nas</h2>
+                    <p className="subtitle">Zacznij budować swoje oszczędności</p>
+
+                    {error && <div className="error-alert">{error}</div>}
+
+                    <div className="input-group">
+                        <div className="field">
+                            <label>Nazwa użytkownika</label>
+                            <input 
+                                name="username" 
+                                type="text" 
+                                placeholder="np. jankowalski" 
+                                required 
+                                onChange={handleChange} 
+                            />
+                        </div>
+
+                        <div className="field">
+                            <label>Adres Email</label>
+                            <input 
+                                name="email" 
+                                type="email" 
+                                placeholder="email@przyklad.pl" 
+                                required 
+                                onChange={handleChange} 
+                            />
+                        </div>
+
+                        <div className="field">
+                            <label>Hasło</label>
+                            <input 
+                                name="password" 
+                                type="password" 
+                                placeholder="Min. 8 znaków" 
+                                required 
+                                onChange={handleChange} 
+                            />
+                        </div>
+
+                        <div className="field">
+                            <label>Powtórz hasło</label>
+                            <input 
+                                name="confirmPassword" 
+                                type="password" 
+                                placeholder="••••••••" 
+                                required 
+                                onChange={handleChange} 
+                            />
+                        </div>
+                    </div>
+
+                    <button type="submit" className="register-btn" disabled={loading}>
+                        {loading ? 'Tworzenie konta...' : 'Zarejestruj się'}
+                    </button>
+
+                    <div className="login-link">
+                        Masz już konto? <Link to="/login">Zaloguj się</Link>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };
