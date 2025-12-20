@@ -24,13 +24,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
-                .csrf(AbstractHttpConfigurer::disable) // Wyłączone dla ułatwienia POST z Reacta
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/register", "/api/login").permitAll() // Rejestracja i login są publiczne
+                        // Dodajemy endpointy paragonów do publicznego dostępu
+                        .requestMatchers("/api/register", "/api/login", "/api/receipts/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .headers(headers -> headers.frameOptions(f -> f.sameOrigin())) // Potrzebne dla konsoli H2
+                .headers(headers -> headers.frameOptions(f -> f.sameOrigin()))
                 .httpBasic(withDefaults());
 
         return http.build();
