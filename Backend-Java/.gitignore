@@ -1,0 +1,54 @@
+### Java & Gradle ###
+.gradle
+/build/
+!gradle/wrapper/gradle-wrapper.jar
+/out/
+/bin/
+.incremental/
+.gradle-test-report/
+
+### React / Node.js (Vite/CRA) ###
+# To dodałeś/dodasz przy instalacji Reacta
+node_modules/
+dist/
+build/
+.eslintcache
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+/out/
+# Jeśli chcesz współdzielić konfigurację runConfigurations, usuń poniższą linię
+.idea/runConfigurations/
+
+### Eclipse / STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### VS Code ###
+.vscode/
+*.code-workspace
+.history/
+
+### System / Temporary ###
+.DS_Store
+Thumbs.db
+*.swp
+*.log
+*.tmp
+*.bak
+
+### Frontend Tooling ###
+.vite/
