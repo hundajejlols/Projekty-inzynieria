@@ -1,36 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './Transactions.css'; // Używamy tych samych stylów dla spójności
+import { API_URL } from '../../config';
+import './Transactions.css';
 
 const Transactions = () => {
     const [receipts, setReceipts] = useState([]);
+    const [expandedId, setExpandedId] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
-    const userName = localStorage.getItem('username');
+
+    // Mapowanie kategorii na ikony
+    const categoryIcons = {
+        'Zakupy': '🛒',
+        'Jedzenie': '🍔',
+        'Transport': '🚗',
+        'Rozrywka': '🎬',
+        'Dom': '🏠',
+        'Zdrowie': '💊',
+        'Inne': '📦'
+    };
 
     const fetchReceipts = async () => {
+        setIsLoading(true);
         try {
-            const res = await axios.get('http://localhost:8080/api/receipts');
-            setReceipts(res.data);
+            const res = await axios.get(`${API_URL}/receipts`);
+            setReceipts(res.data.reverse());
         } catch (err) {
-            console.error("Błąd ładowania transakcji");
+            console.error("Błąd:", err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchReceipts();
-    }, []);
+    useEffect(() => { fetchReceipts(); }, []);
 
     const handleDelete = async (id) => {
-        if (window.confirm("Czy na pewno chcesz usunąć ten paragon?")) {
+        if (window.confirm("Usunąć?")) {
             try {
-                await axios.delete(`http://localhost:8080/api/receipts/${id}`);
-                fetchReceipts(); // Odśwież listę po usunięciu
-            } catch (err) {
-                alert("Błąd podczas usuwania");
-            }
+                await axios.delete(`${API_URL}/receipts/${id}`);
+                setReceipts(curr => curr.filter(r => r.id !== id));
+            } catch (err) { alert("Błąd usuwania"); }
         }
     };
+
+    const toggleDetails = (id) => setExpandedId(expandedId === id ? null : id);
+
+    const formatCurrency = (amount) => new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(amount);
+    const formatDate = (d) => d ? new Date(d).toLocaleDateString('pl-PL') : '-';
+
+    const filteredReceipts = useMemo(() => {
+        return receipts.filter(r => r.shopName.toLowerCase().includes(searchTerm.toLowerCase()));
+    }, [receipts, searchTerm]);
+
+    const totalVisibleSum = useMemo(() => filteredReceipts.reduce((sum, r) => sum + r.totalAmount, 0), [filteredReceipts]);
 
     return (
         <div className="dashboard-wrapper">
@@ -43,29 +67,70 @@ const Transactions = () => {
             </aside>
 
             <main className="dashboard-main">
-                <header className="dash-header">
-                    <h1>Historia Transakcji</h1>
-                </header>
+                <header className="dash-header"><h1>Historia Transakcji</h1></header>
+
+                <div className="transactions-toolbar">
+                    <input 
+                        type="text" 
+                        placeholder="🔍 Szukaj..." 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
+                    <div className="summary-badge">Suma: <span>{formatCurrency(totalVisibleSum)}</span></div>
+                </div>
 
                 <div className="t-list" style={{background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)'}}>
-                    {receipts.map(r => (
-                        <div key={r.id} className="t-row" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 0', borderBottom: '1px solid #f1f5f9'}}>
-                            <div className="t-info">
-                                <strong>{r.shopName}</strong>
-                                <p style={{margin: 0, fontSize: '0.85rem', color: '#64748b'}}>{r.date}</p>
-                            </div>
-                            <div style={{display: 'flex', alignItems: 'center', gap: '20px'}}>
-                                <strong style={{color: '#e11d48'}}>-{r.totalAmount.toFixed(2)} PLN</strong>
-                                <button 
-                                    onClick={() => handleDelete(r.id)}
-                                    style={{backgroundColor: '#fee2e2', color: '#ef4444', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'}}
-                                >
-                                    Usuń
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                    {receipts.length === 0 && <p>Brak transakcji w historii.</p>}
+                    {isLoading ? (
+                        <div className="loading-state"><span className="spinner">⏳</span> Pobieranie...</div>
+                    ) : (
+                        <>
+                            {filteredReceipts.length > 0 ? (
+                                filteredReceipts.map(r => (
+                                    <div key={r.id} className="transaction-container">
+                                        <div className={`t-row ${expandedId === r.id ? 'expanded' : ''}`}>
+                                            <div className="t-info-group">
+                                                <button onClick={() => toggleDetails(r.id)} className="btn-expand">
+                                                    <span style={{display: 'inline-block', transform: expandedId === r.id ? 'rotate(90deg)' : 'rotate(0deg)', transition: '0.2s'}}>▶</span>
+                                                </button>
+                                                
+                                                {/* Ikona kategorii */}
+                                                <div style={{fontSize: '1.5rem', marginRight: '10px'}}>
+                                                    {categoryIcons[r.category] || '📦'}
+                                                </div>
+
+                                                <div className="t-text">
+                                                    <strong>{r.shopName}</strong>
+                                                    <small>{r.category || 'Brak kategorii'} • {formatDate(r.date)}</small>
+                                                </div>
+                                            </div>
+
+                                            <div className="t-actions-group">
+                                                <strong className="amount-negative">-{formatCurrency(r.totalAmount)}</strong>
+                                                <button onClick={() => handleDelete(r.id)} className="btn-delete-small">🗑️</button>
+                                            </div>
+                                        </div>
+
+                                        {expandedId === r.id && (
+                                            <div className="receipt-details">
+                                                <div className="details-header">Produkty:</div>
+                                                <ul className="details-list">
+                                                    {r.items && r.items.length > 0 ? (
+                                                        r.items.map((item, index) => (
+                                                            <li key={index} className="detail-item">
+                                                                <span>{item.productName}</span>
+                                                                <span>{formatCurrency(item.price)}</span>
+                                                            </li>
+                                                        ))
+                                                    ) : <li className="no-items-info">Brak produktów</li>}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            ) : <p className="no-data">Brak transakcji.</p>}
+                        </>
+                    )}
                 </div>
             </main>
         </div>

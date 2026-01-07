@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../config';
 import './AddReceipt.css';
 
 const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
     const [shopName, setShopName] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [category, setCategory] = useState('Zakupy');
     const [items, setItems] = useState([{ productName: '', price: 0 }]);
 
     if (!isOpen) return null;
+
+    const categories = ['Zakupy', 'Jedzenie', 'Transport', 'Rozrywka', 'Dom', 'Zdrowie', 'Inne'];
 
     const handleAddItem = () => {
         setItems([...items, { productName: '', price: 0 }]);
     };
 
+    // POPRAWIONA LINIJKA (było constHZ, jest const)
     const handleItemChange = (index, field, value) => {
         const newItems = [...items];
         newItems[index][field] = field === 'price' ? parseFloat(value) || 0 : value;
@@ -21,8 +26,6 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // Pobieramy nazwę użytkownika zapisaną podczas logowania
         const userName = localStorage.getItem('username');
         
         if (!userName) {
@@ -31,18 +34,15 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
         }
 
         const totalAmount = items.reduce((sum, item) => sum + item.price, 0);
-        const payload = { shopName, date, totalAmount, items };
+        const payload = { shopName, date, category, totalAmount, items };
 
         try {
-            // Zmieniony URL: wysyłamy pod /api/receipts/{username}
-            // Dzięki temu backend automatycznie odejmie kwotę od salda tego użytkownika
-            await axios.post(`http://localhost:8080/api/receipts/${userName}`, payload);
-            
-            // Odświeżamy dane na dashboardzie (saldo i listę)
+            await axios.post(`${API_URL}/receipts/${userName}`, payload);
             onRefresh();
             
-            // Resetujemy formularz i zamykamy okno
+            // Reset formularza
             setShopName('');
+            setCategory('Zakupy');
             setItems([{ productName: '', price: 0 }]);
             onClose();
         } catch (err) {
@@ -56,11 +56,11 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
             <div className="modal-content">
                 <div className="modal-header">
                     <h3>Nowy Paragon</h3>
-                    <p className="modal-subtitle">Dodaj produkty, aby automatycznie zaktualizować saldo</p>
+                    <p className="modal-subtitle">Uzupełnij szczegóły wydatku</p>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="field-auth">
-                        <label>Nazwa sklepu</label>
+                        <label>Nazwa sklepu / Miejsca</label>
                         <input 
                             type="text" 
                             placeholder="np. Biedronka" 
@@ -69,14 +69,27 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
                             required 
                         />
                     </div>
-                    <div className="field-auth">
-                        <label>Data zakupu</label>
-                        <input 
-                            type="date" 
-                            value={date} 
-                            onChange={(e) => setDate(e.target.value)} 
-                            required 
-                        />
+
+                    <div className="form-row" style={{display:'flex', gap:'15px'}}>
+                        <div className="field-auth" style={{flex:1}}>
+                            <label>Data</label>
+                            <input 
+                                type="date" 
+                                value={date} 
+                                onChange={(e) => setDate(e.target.value)} 
+                                required 
+                            />
+                        </div>
+                        <div className="field-auth" style={{flex:1}}>
+                            <label>Kategoria</label>
+                            <select 
+                                value={category} 
+                                onChange={(e) => setCategory(e.target.value)}
+                                style={{width:'100%', padding:'0.8rem', borderRadius:'12px', border:'1px solid #e2e8f0'}}
+                            >
+                                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                            </select>
+                        </div>
                     </div>
                     
                     <div className="items-section">
@@ -111,7 +124,7 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
                     </div>
 
                     <div className="modal-footer">
-                        <button type="submit" className="btn-save">Zatwierdź i odejmij z salda</button>
+                        <button type="submit" className="btn-save">Zatwierdź</button>
                         <button type="button" className="btn-cancel" onClick={onClose}>Anuluj</button>
                     </div>
                 </form>

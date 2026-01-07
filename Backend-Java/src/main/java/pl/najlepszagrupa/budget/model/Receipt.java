@@ -15,9 +15,9 @@ public class Receipt {
     private Double totalAmount;
     private LocalDate date;
 
-    // Relacja: Jeden paragon ma wiele produktów
-    // EAGER zapewnia, że produkty pobiorą się razem z paragonem
-    // JsonManagedReference zapobiega nieskończonej pętli
+    // NOWE POLE: Kategoria
+    private String category;
+
     @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<ReceiptItem> items;
@@ -31,6 +31,8 @@ public class Receipt {
     public void setTotalAmount(Double totalAmount) { this.totalAmount = totalAmount; }
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
+    public String getCategory() { return category; } // Getter
+    public void setCategory(String category) { this.category = category; } // Setter
     public List<ReceiptItem> getItems() { return items; }
     public void setItems(List<ReceiptItem> items) { this.items = items; }
 }

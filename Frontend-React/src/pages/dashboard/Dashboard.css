@@ -2,12 +2,13 @@
     display: flex;
     width: 100vw;
     height: 100vh;
-    background: #f1f5f9;
+    background: #f8fafc; /* Trochę jaśniejsze tło */
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .sidebar-container {
     width: 260px;
-    min-width: 260px; /* Nie pozwala sidebarowi się skurczyć */
+    min-width: 260px;
     background: white;
     border-right: 1px solid #e2e8f0;
     display: flex;
@@ -52,10 +53,14 @@
     border-radius: 10px;
     font-weight: 700;
     cursor: pointer;
+    transition: background 0.2s;
+}
+.s-logout:hover {
+    background: #fecaca;
 }
 
 .dashboard-main {
-    flex-grow: 1; /* KLUCZOWE: wypełnia całą szerokość po prawej */
+    flex-grow: 1;
     padding: 2.5rem 4rem;
     overflow-y: auto;
 }
@@ -67,11 +72,17 @@
 .dash-header h1 {
     font-size: 2rem;
     color: #1e293b;
+    margin-bottom: 0.5rem;
 }
 
+.dash-header p {
+    color: #64748b;
+}
+
+/* Karty statystyk */
 .stat-cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 równe kolumny */
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     margin-bottom: 2.5rem;
 }
@@ -81,26 +92,30 @@
     padding: 1.8rem;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    border: 1px solid #f1f5f9;
 }
 
 .stat-card span {
     color: #64748b;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .stat-card h3 {
-    font-size: 1.6rem;
-    margin-top: 0.5rem;
-    color: #1e293b;
+    font-size: 2rem;
+    margin-top: 0.8rem;
+    font-weight: 700;
 }
 
-.stat-card.exp h3 { color: #ef4444; }
-.stat-card.sav h3 { color: #10b981; }
+.balance-positive { color: #10b981; }
+.balance-negative { color: #ef4444; }
 
+/* Grid główny */
 .dash-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr; /* Lewa strona szersza niż prawa */
+    grid-template-columns: 2fr 1fr;
     gap: 2rem;
 }
 
@@ -109,8 +124,32 @@
     padding: 2rem;
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    border: 1px solid #f1f5f9;
 }
 
+.section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-header-flex h3, .quick-tools h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.1rem;
+}
+
+.text-btn {
+    background: none;
+    border: none;
+    color: #2563eb;
+    font-weight: 600;
+    cursor: pointer;
+}
+.text-btn:hover { text-decoration: underline; }
+
+/* Lista transakcji */
 .t-row {
     display: flex;
     justify-content: space-between;
@@ -118,25 +157,68 @@
     padding: 1rem 0;
     border-bottom: 1px solid #f1f5f9;
 }
+.t-row:last-child { border-bottom: none; }
 
-.plus { color: #10b981; font-weight: 700; }
+.t-info {
+    display: flex;
+    flex-direction: column;
+}
 
-.btn-add, .btn-rem {
+.t-info strong { color: #334155; }
+.t-info small { color: #94a3b8; margin-top: 4px; }
+
+.amount-negative {
+    color: #e11d48;
+}
+
+.no-data-msg {
+    color: #94a3b8;
+    text-align: center;
+    padding: 1rem;
+    font-style: italic;
+}
+
+/* Przyciski akcji */
+.btn-add, .btn-income {
     width: 100%;
     padding: 1rem;
     border: none;
     border-radius: 12px;
     font-weight: 700;
     cursor: pointer;
-    margin-bottom: 1rem;
     transition: 0.2s;
+    font-size: 0.95rem;
 }
 
-.btn-add { background: #2563eb; color: white; }
-.btn-rem { background: #e0e7ff; color: #2563eb; }
+.btn-add { 
+    background: #2563eb; 
+    color: white; 
+    margin-bottom: 1rem; 
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+.btn-add:hover { background: #1d4ed8; }
 
-/* Responsywność */
+.btn-income {
+    background: #10b981;
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+.btn-income:hover { background: #059669; }
+
+/* Loading screen */
+.loading-screen {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    color: #64748b;
+    background: #f8fafc;
+}
+
 @media (max-width: 1024px) {
     .stat-cards { grid-template-columns: 1fr; }
     .dash-grid { grid-template-columns: 1fr; }
+    .dashboard-wrapper { flex-direction: column; height: auto; }
+    .sidebar-container { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #e2e8f0; }
 }
