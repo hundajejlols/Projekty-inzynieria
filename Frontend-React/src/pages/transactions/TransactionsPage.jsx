@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../config';
 import './Transactions.css';
+import { toast } from 'react-toastify';
 
 const Transactions = () => {
     const [receipts, setReceipts] = useState([]);
@@ -37,13 +38,16 @@ const Transactions = () => {
     useEffect(() => { fetchReceipts(); }, []);
 
     const handleDelete = async (id) => {
-        if (window.confirm("Usunąć?")) {
-            try {
-                await axios.delete(`${API_URL}/receipts/${id}`);
-                setReceipts(curr => curr.filter(r => r.id !== id));
-            } catch (err) { alert("Błąd usuwania"); }
+    if (window.confirm("Usunąć paragon?")) {
+        try {
+            await axios.delete(`${API_URL}/receipts/${id}`);
+            setReceipts(curr => curr.filter(r => r.id !== id));
+            toast.success("Usunięto transakcję"); // Toast zamiast ciszy
+        } catch (err) { 
+            toast.error("Błąd podczas usuwania");
         }
-    };
+    }
+};
 
     const toggleDetails = (id) => setExpandedId(expandedId === id ? null : id);
 

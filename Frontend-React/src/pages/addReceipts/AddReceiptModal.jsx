@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../config';
+import { toast } from 'react-toastify'; // Dodano
 import './AddReceipt.css';
 
 const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
@@ -17,7 +18,6 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
         setItems([...items, { productName: '', price: 0 }]);
     };
 
-    // POPRAWIONA LINIJKA (było constHZ, jest const)
     const handleItemChange = (index, field, value) => {
         const newItems = [...items];
         newItems[index][field] = field === 'price' ? parseFloat(value) || 0 : value;
@@ -29,7 +29,7 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
         const userName = localStorage.getItem('username');
         
         if (!userName) {
-            alert("Błąd: Nie znaleziono zalogowanego użytkownika.");
+            toast.error("Błąd: Brak użytkownika!");
             return;
         }
 
@@ -38,22 +38,25 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
 
         try {
             await axios.post(`${API_URL}/receipts/${userName}`, payload);
+            
+            toast.success("🧾 Paragon dodany pomyślnie!"); // TOAST
             onRefresh();
             
-            // Reset formularza
             setShopName('');
             setCategory('Zakupy');
             setItems([{ productName: '', price: 0 }]);
             onClose();
         } catch (err) {
-            console.error("Błąd zapisu paragonu:", err);
-            alert("Wystąpił błąd podczas zapisywania paragonu.");
+            console.error("Błąd zapisu:", err);
+            toast.error("Wystąpił błąd przy zapisie."); // TOAST
         }
     };
-
+    
+    // ... reszta renderowania (JSX) bez zmian ...
     return (
         <div className="modal-overlay">
-            <div className="modal-content">
+            {/* ... zawartość modala bez zmian ... */}
+             <div className="modal-content">
                 <div className="modal-header">
                     <h3>Nowy Paragon</h3>
                     <p className="modal-subtitle">Uzupełnij szczegóły wydatku</p>
@@ -85,7 +88,7 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
                             <select 
                                 value={category} 
                                 onChange={(e) => setCategory(e.target.value)}
-                                style={{width:'100%', padding:'0.8rem', borderRadius:'12px', border:'1px solid #e2e8f0'}}
+                                style={{width:'100%', padding:'0.8rem', borderRadius:'12px', border:'1px solid #e2e8f0', background:'white'}}
                             >
                                 {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                             </select>

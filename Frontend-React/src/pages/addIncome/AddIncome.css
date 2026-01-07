@@ -1,0 +1,47 @@
+/* Specjalne style dla modala wpłaty, dziedziczą z AddReceipt.css, ale dodajemy smaczki */
+.income-content {
+    max-width: 400px;
+    text-align: center;
+}
+
+.income-input-wrapper {
+    position: relative;
+    margin: 2rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.currency-prefix {
+    position: absolute;
+    left: 20px;
+    font-weight: 700;
+    color: #10b981; /* Zielony kolor pieniądza */
+    font-size: 1.2rem;
+    z-index: 2;
+}
+
+.income-input-wrapper input {
+    font-size: 2rem;
+    font-weight: 800;
+    text-align: center;
+    color: #1e293b;
+    padding: 1rem 1rem 1rem 3rem; /* Miejsce na prefix */
+    border: 2px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    width: 100%;
+}
+
+.income-input-wrapper input:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+}
+
+.btn-income-save {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+.btn-income-save:hover {
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
