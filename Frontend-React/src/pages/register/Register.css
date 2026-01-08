@@ -1,121 +1,122 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-
+/* Dziedziczymy styl z Login.css dla spójności, ale dodajemy specyficzne klasy */
 .register-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: #f8fafc;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Tło dekoracyjne */
+.register-container::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(0,0,0,0) 70%);
+    top: -200px;
+    right: -200px;
 }
 
 .register-card {
     background: #ffffff;
-    padding: 3rem;
-    border-radius: 24px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+    padding: 3.5rem;
+    border-radius: 28px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     width: 100%;
-    max-width: 480px;
+    max-width: 500px;
+    position: relative;
+    z-index: 10;
+    animation: fadeInScale 0.4s ease-out;
 }
 
-.brand-icon {
-    font-size: 2.5rem;
+.register-header {
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 2.5rem;
 }
 
-.register-form h2 {
-    text-align: center;
+.register-header h2 {
+    font-size: 2.2rem;
     color: #1e293b;
-    margin: 0;
-    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    font-weight: 800;
 }
 
-.subtitle {
-    text-align: center;
+.register-header p {
     color: #64748b;
-    margin-bottom: 2rem;
-}
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
 }
 
 .field label {
-    font-size: 0.85rem;
     font-weight: 600;
     color: #334155;
+    margin-bottom: 0.5rem;
+    display: block;
 }
 
 .field input {
-    padding: 0.8rem 1rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
     font-size: 1rem;
     transition: all 0.2s;
+    background: #f8fafc;
 }
 
 .field input:focus {
-    outline: none;
     border-color: #2563eb;
+    background: white;
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    outline: none;
 }
 
 .register-btn {
     width: 100%;
     margin-top: 2rem;
-    padding: 1rem;
-    background: #2563eb;
+    padding: 1.2rem;
+    background: #10b981; /* Zielony dla rejestracji */
     color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
+    border-radius: 14px;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .register-btn:hover {
-    background: #1d4ed8;
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
 }
 
 .register-btn:disabled {
-    background: #94a3b8;
+    background: #cbd5e1;
     cursor: not-allowed;
-}
-
-.error-alert {
-    background: #fff1f2;
-    color: #e11d48;
-    padding: 0.8rem;
-    border-radius: 10px;
-    text-align: center;
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
-    border: 1px solid #ffe4e6;
+    transform: none;
+    box-shadow: none;
 }
 
 .login-link {
-    margin-top: 1.5rem;
     text-align: center;
-    font-size: 0.9rem;
+    margin-top: 2rem;
     color: #64748b;
 }
 
 .login-link a {
     color: #2563eb;
-    text-decoration: none;
     font-weight: 700;
+    text-decoration: none;
 }
 
 .login-link a:hover {
     text-decoration: underline;
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../config';
+import { CATEGORY_ICONS } from '../../utils/constants'; // Import ikon
 import './Transactions.css';
 import { toast } from 'react-toastify';
 
@@ -10,26 +11,18 @@ const Transactions = () => {
     const [expandedId, setExpandedId] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('all'); 
     const navigate = useNavigate();
-
-    // Mapowanie kategorii na ikony
-    const categoryIcons = {
-        'Zakupy': '🛒',
-        'Jedzenie': '🍔',
-        'Transport': '🚗',
-        'Rozrywka': '🎬',
-        'Dom': '🏠',
-        'Zdrowie': '💊',
-        'Inne': '📦'
-    };
+    const userName = localStorage.getItem('username');
 
     const fetchReceipts = async () => {
         setIsLoading(true);
         try {
-            const res = await axios.get(`${API_URL}/receipts`);
+            const res = await axios.get(`${API_URL}/receipts/${userName}`);
             setReceipts(res.data.reverse());
         } catch (err) {
             console.error("Błąd:", err);
+            toast.error("Nie udało się pobrać transakcji");
         } finally {
             setIsLoading(false);
         }
@@ -38,16 +31,16 @@ const Transactions = () => {
     useEffect(() => { fetchReceipts(); }, []);
 
     const handleDelete = async (id) => {
-    if (window.confirm("Usunąć paragon?")) {
-        try {
-            await axios.delete(`${API_URL}/receipts/${id}`);
-            setReceipts(curr => curr.filter(r => r.id !== id));
-            toast.success("Usunięto transakcję"); // Toast zamiast ciszy
-        } catch (err) { 
-            toast.error("Błąd podczas usuwania");
+        if (window.confirm("Usunąć paragon?")) {
+            try {
+                await axios.delete(`${API_URL}/receipts/${id}`);
+                setReceipts(curr => curr.filter(r => r.id !== id));
+                toast.success("Usunięto transakcję");
+            } catch (err) { 
+                toast.error("Błąd podczas usuwania");
+            }
         }
-    }
-};
+    };
 
     const toggleDetails = (id) => setExpandedId(expandedId === id ? null : id);
 
@@ -55,8 +48,14 @@ const Transactions = () => {
     const formatDate = (d) => d ? new Date(d).toLocaleDateString('pl-PL') : '-';
 
     const filteredReceipts = useMemo(() => {
-        return receipts.filter(r => r.shopName.toLowerCase().includes(searchTerm.toLowerCase()));
-    }, [receipts, searchTerm]);
+        return receipts.filter(r => {
+            const matchesSearch = r.shopName.toLowerCase().includes(searchTerm.toLowerCase());
+            let matchesType = true;
+            if (filterType === 'personal') matchesType = !r.isFamilyExpense;
+            if (filterType === 'family') matchesType = r.isFamilyExpense;
+            return matchesSearch && matchesType;
+        });
+    }, [receipts, searchTerm, filterType]);
 
     const totalVisibleSum = useMemo(() => filteredReceipts.reduce((sum, r) => sum + r.totalAmount, 0), [filteredReceipts]);
 
@@ -73,15 +72,23 @@ const Transactions = () => {
             <main className="dashboard-main">
                 <header className="dash-header"><h1>Historia Transakcji</h1></header>
 
-                <div className="transactions-toolbar">
-                    <input 
-                        type="text" 
-                        placeholder="🔍 Szukaj..." 
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="search-input"
-                    />
-                    <div className="summary-badge">Suma: <span>{formatCurrency(totalVisibleSum)}</span></div>
+                <div className="transactions-toolbar-wrapper">
+                    <div className="filters-container">
+                        <button className={`filter-btn ${filterType === 'all' ? 'active' : ''}`} onClick={() => setFilterType('all')}>Wszystkie</button>
+                        <button className={`filter-btn ${filterType === 'personal' ? 'active' : ''}`} onClick={() => setFilterType('personal')}>👤 Osobiste</button>
+                        <button className={`filter-btn ${filterType === 'family' ? 'active' : ''}`} onClick={() => setFilterType('family')}>👨‍👩‍👧‍👦 Rodzinne</button>
+                    </div>
+
+                    <div className="transactions-toolbar">
+                        <input 
+                            type="text" 
+                            placeholder="🔍 Szukaj sklepu..." 
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="search-input"
+                        />
+                        <div className="summary-badge">Suma: <span>{formatCurrency(totalVisibleSum)}</span></div>
+                    </div>
                 </div>
 
                 <div className="t-list" style={{background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)'}}>
@@ -98,13 +105,16 @@ const Transactions = () => {
                                                     <span style={{display: 'inline-block', transform: expandedId === r.id ? 'rotate(90deg)' : 'rotate(0deg)', transition: '0.2s'}}>▶</span>
                                                 </button>
                                                 
-                                                {/* Ikona kategorii */}
+                                                {/* Użycie ikon z constants.js */}
                                                 <div style={{fontSize: '1.5rem', marginRight: '10px'}}>
-                                                    {categoryIcons[r.category] || '📦'}
+                                                    {CATEGORY_ICONS[r.category] || '📦'}
                                                 </div>
 
                                                 <div className="t-text">
-                                                    <strong>{r.shopName}</strong>
+                                                    <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                                                        <strong>{r.shopName}</strong>
+                                                        {r.isFamilyExpense ? <span className="badge-family">Rodzina</span> : <span className="badge-personal">Osobiste</span>}
+                                                    </div>
                                                     <small>{r.category || 'Brak kategorii'} • {formatDate(r.date)}</small>
                                                 </div>
                                             </div>
@@ -132,7 +142,7 @@ const Transactions = () => {
                                         )}
                                     </div>
                                 ))
-                            ) : <p className="no-data">Brak transakcji.</p>}
+                            ) : <p className="no-data">Brak transakcji pasujących do filtrów.</p>}
                         </>
                     )}
                 </div>

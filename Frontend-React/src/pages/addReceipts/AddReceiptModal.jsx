@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../config';
-import { toast } from 'react-toastify'; // Dodano
+import { toast } from 'react-toastify';
+import { CATEGORIES } from '../../utils/constants'; // Import kategorii
 import './AddReceipt.css';
 
 const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
     const [shopName, setShopName] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [category, setCategory] = useState('Zakupy');
+    const [category, setCategory] = useState(CATEGORIES[0]); // Domyślna kategoria z stałych
     const [items, setItems] = useState([{ productName: '', price: 0 }]);
+    const [isFamilyExpense, setIsFamilyExpense] = useState(false);
 
     if (!isOpen) return null;
-
-    const categories = ['Zakupy', 'Jedzenie', 'Transport', 'Rozrywka', 'Dom', 'Zdrowie', 'Inne'];
 
     const handleAddItem = () => {
         setItems([...items, { productName: '', price: 0 }]);
@@ -34,34 +34,47 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
         }
 
         const totalAmount = items.reduce((sum, item) => sum + item.price, 0);
-        const payload = { shopName, date, category, totalAmount, items };
+        const payload = { shopName, date, category, totalAmount, items, isFamilyExpense };
 
         try {
             await axios.post(`${API_URL}/receipts/${userName}`, payload);
-            
-            toast.success("🧾 Paragon dodany pomyślnie!"); // TOAST
+            toast.success("🧾 Paragon dodany pomyślnie!");
             onRefresh();
             
+            // Reset formularza
             setShopName('');
-            setCategory('Zakupy');
+            setCategory(CATEGORIES[0]);
             setItems([{ productName: '', price: 0 }]);
+            setIsFamilyExpense(false);
             onClose();
         } catch (err) {
             console.error("Błąd zapisu:", err);
-            toast.error("Wystąpił błąd przy zapisie."); // TOAST
+            const msg = err.response?.data?.error || "Wystąpił błąd przy zapisie.";
+            toast.error(msg);
         }
     };
     
-    // ... reszta renderowania (JSX) bez zmian ...
     return (
         <div className="modal-overlay">
-            {/* ... zawartość modala bez zmian ... */}
              <div className="modal-content">
                 <div className="modal-header">
                     <h3>Nowy Paragon</h3>
                     <p className="modal-subtitle">Uzupełnij szczegóły wydatku</p>
                 </div>
                 <form onSubmit={handleSubmit}>
+                    {/* CHECKBOX RODZINNY */}
+                    <div style={{marginBottom:'20px', padding:'10px', background:'#f0fdf4', borderRadius:'10px', border:'1px solid #bbf7d0'}}>
+                        <label style={{display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', fontWeight:'bold', color:'#166534'}}>
+                            <input 
+                                type="checkbox" 
+                                checked={isFamilyExpense} 
+                                onChange={(e) => setIsFamilyExpense(e.target.checked)}
+                                style={{width:'20px', height:'20px'}}
+                            />
+                            👨‍👩‍👧‍👦 To wydatek z konta Rodziny
+                        </label>
+                    </div>
+
                     <div className="field-auth">
                         <label>Nazwa sklepu / Miejsca</label>
                         <input 
@@ -90,7 +103,8 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
                                 onChange={(e) => setCategory(e.target.value)}
                                 style={{width:'100%', padding:'0.8rem', borderRadius:'12px', border:'1px solid #e2e8f0', background:'white'}}
                             >
-                                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                {/* Generowanie opcji z pliku constants.js */}
+                                {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                             </select>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import { API_URL } from '../../config';
 import './Register.css';
 
 const RegisterPage = () => {
@@ -22,20 +23,18 @@ const RegisterPage = () => {
         e.preventDefault();
         setError('');
 
-        // Prosta walidacja haseł
         if (userData.password !== userData.confirmPassword) {
             return setError('Hasła nie są identyczne');
         }
 
         setLoading(true);
         try {
-            await axios.post('http://localhost:8080/api/register', {
+            await axios.post(`${API_URL}/register`, {
                 username: userData.username,
                 email: userData.email,
                 password: userData.password
             });
             
-            // Po sukcesie przekieruj do logowania
             navigate('/login', { state: { message: 'Konto utworzone! Zaloguj się.' } });
         } catch (err) {
             setError(err.response?.data?.message || 'Błąd rejestracji. Spróbuj inny login/email.');
@@ -47,20 +46,26 @@ const RegisterPage = () => {
     return (
         <div className="register-container">
             <div className="register-card">
+                <div className="register-header">
+                    <div style={{fontSize: '3rem', marginBottom: '10px'}}>🚀</div>
+                    <h2>Stwórz konto</h2>
+                    <p>Rozpocznij swoją finansową podróż</p>
+                </div>
+
+                {error && (
+                    <div className="error-alert" style={{background: '#fee2e2', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center'}}>
+                        {error}
+                    </div>
+                )}
+
                 <form className="register-form" onSubmit={handleSubmit}>
-                    <div className="brand-icon">📈</div>
-                    <h2>Dołącz do nas</h2>
-                    <p className="subtitle">Zacznij budować swoje oszczędności</p>
-
-                    {error && <div className="error-alert">{error}</div>}
-
-                    <div className="input-group">
+                    <div className="input-group" style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
                         <div className="field">
                             <label>Nazwa użytkownika</label>
                             <input 
                                 name="username" 
                                 type="text" 
-                                placeholder="np. jankowalski" 
+                                placeholder="Twój unikalny login" 
                                 required 
                                 onChange={handleChange} 
                             />
@@ -71,7 +76,7 @@ const RegisterPage = () => {
                             <input 
                                 name="email" 
                                 type="email" 
-                                placeholder="email@przyklad.pl" 
+                                placeholder="przyklad@email.com" 
                                 required 
                                 onChange={handleChange} 
                             />
@@ -82,7 +87,7 @@ const RegisterPage = () => {
                             <input 
                                 name="password" 
                                 type="password" 
-                                placeholder="Min. 8 znaków" 
+                                placeholder="Minimum 8 znaków" 
                                 required 
                                 onChange={handleChange} 
                             />
@@ -93,7 +98,7 @@ const RegisterPage = () => {
                             <input 
                                 name="confirmPassword" 
                                 type="password" 
-                                placeholder="••••••••" 
+                                placeholder="Potwierdź hasło" 
                                 required 
                                 onChange={handleChange} 
                             />
@@ -101,7 +106,7 @@ const RegisterPage = () => {
                     </div>
 
                     <button type="submit" className="register-btn" disabled={loading}>
-                        {loading ? 'Tworzenie konta...' : 'Zarejestruj się'}
+                        {loading ? 'Tworzenie konta...' : 'Zarejestruj się za darmo'}
                     </button>
 
                     <div className="login-link">
