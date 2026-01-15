@@ -38,10 +38,8 @@ const Dashboard = () => {
         'Rozrywka': 300, 'Dom': 600, 'Zdrowie': 200, 'Inne': 150
     };
 
-    const [limits, setLimits] = useState(() => {
-        const saved = localStorage.getItem(`budgetLimits_${userName}`);
-        return saved ? JSON.parse(saved) : defaultLimits;
-    });
+    // ZMIANA: Stan limits początkowo pusty, pobierany z backendu
+    const [limits, setLimits] = useState({});
 
     const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'];
     const formatCurrency = (amount) => new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(amount);
@@ -64,7 +62,25 @@ const Dashboard = () => {
         }
     };
 
-    useEffect(() => { fetchData(); }, []);
+    // ZMIANA: Nowa funkcja do pobierania limitów
+    const fetchLimits = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/limits/${userName}`);
+            if (Object.keys(res.data).length === 0) {
+                 setLimits(defaultLimits);
+            } else {
+                 setLimits(res.data);
+            }
+        } catch (err) {
+            console.error("Błąd limitów", err);
+            setLimits(defaultLimits);
+        }
+    };
+
+    useEffect(() => { 
+        fetchData(); 
+        fetchLimits(); // Wywołanie pobierania limitów
+    }, []);
 
     useEffect(() => {
         const theme = isDark ? 'dark' : 'light';
@@ -96,18 +112,26 @@ const Dashboard = () => {
     const monthlySpent = useMemo(() => filteredTransactions.reduce((acc, t) => acc + t.totalAmount, 0), [filteredTransactions]);
 
     const openEditLimit = (category) => {
-        setEditingCategory({ name: category, limit: limits[category] });
+        setEditingCategory({ name: category, limit: limits[category] || 0 });
         setIsEditLimitOpen(true);
     };
 
-    const saveLimit = (category, newLimit) => {
-        const updatedLimits = { ...limits, [category]: newLimit };
-        setLimits(updatedLimits);
-        localStorage.setItem(`budgetLimits_${userName}`, JSON.stringify(updatedLimits));
-        toast.success(`Zaktualizowano limit dla: ${category}`);
+    // ZMIANA: Zapis limitu przez API
+    const saveLimit = async (category, newLimit) => {
+        try {
+            await axios.post(`${API_URL}/limits/${userName}`, {
+                category: category,
+                limit: newLimit
+            });
+            setLimits({ ...limits, [category]: newLimit });
+            toast.success(`Zaktualizowano limit dla: ${category}`);
+        } catch (e) {
+            toast.error("Błąd zapisu limitu");
+        }
     };
 
     const getProgressBarColor = (spent, limit) => {
+        if (!limit || limit === 0) return '#ef4444';
         const percentage = (spent / limit) * 100;
         if (percentage >= 100) return '#ef4444'; 
         if (percentage >= 80) return '#f59e0b';  

@@ -1,6 +1,9 @@
 package pl.najlepszagrupa.budget.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "users")
@@ -10,16 +13,23 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Login jest wymagany")
+    @Size(min = 3, message = "Login musi mieć min. 3 znaki")
     private String username;
+
+    @NotBlank(message = "Email jest wymagany")
+    @Email(message = "Niepoprawny format email")
     private String email;
+
+    @NotBlank(message = "Hasło jest wymagane")
+    @Size(min = 8, message = "Hasło musi mieć min. 8 znaków")
     private String password;
+
     private Double balance = 0.0;
 
-    // --- NOWE POLE WYMAGANE ---
     @ManyToOne
     @JoinColumn(name = "family_id")
     private Family family;
-    // --------------------------
 
     // Gettery i Settery
     public Long getId() { return id; }
@@ -32,7 +42,6 @@ public class User {
     public void setPassword(String password) { this.password = password; }
     public Double getBalance() { return balance; }
     public void setBalance(Double balance) { this.balance = balance; }
-
     public Family getFamily() { return family; }
     public void setFamily(Family family) { this.family = family; }
 }

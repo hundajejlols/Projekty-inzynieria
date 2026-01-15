@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.najlepszagrupa.budget.config.JwtUtils;
 import pl.najlepszagrupa.budget.model.User;
 import pl.najlepszagrupa.budget.service.UserService;
+import jakarta.validation.Valid;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@Valid @RequestBody User user) {
         User created = userService.addUser(user);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
@@ -38,7 +39,6 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         try {
-            // 1. Spring Security sprawdza hasło (automatycznie używa PasswordEncoder)
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             credentials.get("username"),
@@ -46,10 +46,8 @@ public class UserController {
                     )
             );
 
-            // 2. Jeśli OK -> generujemy token
             String token = jwtUtils.generateToken(auth.getName());
 
-            // 3. Zwracamy token i nazwę użytkownika
             return ResponseEntity.ok(Map.of(
                     "token", token,
                     "username", auth.getName(),
@@ -57,7 +55,6 @@ public class UserController {
             ));
 
         } catch (AuthenticationException e) {
-            // Jeśli hasło złe -> 401 Unauthorized
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Błędny login lub hasło"));
         }

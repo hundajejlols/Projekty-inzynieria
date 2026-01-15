@@ -1,16 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../config';
 import { toast } from 'react-toastify';
-import { CATEGORIES } from '../../utils/constants';
 import './AddReceipt.css';
 
 const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
     const [shopName, setShopName] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [category, setCategory] = useState(CATEGORIES[0]);
+    // ZMIANA: Kategorie pobierane z API
+    const [categoriesList, setCategoriesList] = useState([]);
+    const [category, setCategory] = useState('');
+    
     const [items, setItems] = useState([{ productName: '', price: 0 }]);
     const [isFamilyExpense, setIsFamilyExpense] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            axios.get(`${API_URL}/categories`)
+                .then(res => {
+                    setCategoriesList(res.data);
+                    if(res.data.length > 0) setCategory(res.data[0]);
+                })
+                .catch(() => {
+                    const fallback = ['Inne'];
+                    setCategoriesList(fallback);
+                    setCategory('Inne');
+                });
+        }
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -42,7 +59,7 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
             onRefresh();
             
             setShopName('');
-            setCategory(CATEGORIES[0]);
+            if(categoriesList.length > 0) setCategory(categoriesList[0]);
             setItems([{ productName: '', price: 0 }]);
             setIsFamilyExpense(false);
             onClose();
@@ -100,7 +117,7 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
                                 value={category} 
                                 onChange={(e) => setCategory(e.target.value)}
                             >
-                                {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                {categoriesList.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                             </select>
                         </div>
                     </div>
