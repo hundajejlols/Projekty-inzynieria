@@ -1,142 +1,115 @@
-💰 BudżetDomowy - System Zarządzania Finansami
-BudżetDomowy to nowoczesna aplikacja typu Full-Stack służąca do kompleksowego zarządzania finansami osobistymi oraz współdzielonym budżetem rodzinnym. Projekt wyróżnia się nowoczesnym interfejsem (React + Vite), zaawansowanym backendem (Spring Boot + Java 25) oraz unikalnymi funkcjami społecznościowymi (rodziny).
+<div align="center">
 
-🌟 Kluczowe Funkcjonalności
-💸 Zarządzanie Wydatkami
-Dodawanie Paragonów: Rejestrowanie wydatków z podziałem na pozycje (produkty) i kategorie.
+  <img src="https://via.placeholder.com/1200x400?text=Budżet+Domowy+2.0+-+Zarządzanie+Finansami" alt="Budżet Domowy Banner" width="100%" />
 
-Kategorie: Predefiniowane kategorie (Jedzenie, Transport, Dom, Zdrowie, Rozrywka, itp.).
+  # 💰 BudżetDomowy 2.0
+  
+  **Nowoczesna platforma Full-Stack do zarządzania finansami osobistymi i rodzinnymi.**
+  
+  <p>
+    <a href="#-kluczowe-funkcjonalności">Funkcjonalności</a> •
+    <a href="#-stack-technologiczny">Technologie</a> •
+    <a href="#-uruchomienie">Instalacja</a> •
+    <a href="#-zrzuty-ekranu">Galeria</a>
+  </p>
 
-Limity Budżetowe: Definiowanie miesięcznych limitów dla każdej kategorii z wizualizacją postępu (paski zużycia).
+  ![Java](https://img.shields.io/badge/Java-25-orange?style=for-the-badge&logo=openjdk)
+  ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.0-green?style=for-the-badge&logo=springboot)
+  ![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)
+  ![Vite](https://img.shields.io/badge/Vite-7.3-646CFF?style=for-the-badge&logo=vite)
+  ![Status](https://img.shields.io/badge/Status-Active_Dev-lightgreen?style=for-the-badge)
 
-Historia: Pełna lista transakcji z możliwością filtrowania, edycji i usuwania.
+</div>
 
-👨‍👩‍👧‍👦 Moduł Rodzinny (Unikalna cecha!)
-Wspólny Portfel: Możliwość utworzenia Rodziny lub dołączenia do istniejącej za pomocą Kodu Zaproszenia.
+---
 
-Współdzielenie Kosztów: Podczas dodawania paragonu decydujesz, czy płacisz z konta prywatnego, czy ze środków rodziny.
+## 📖 O Projekcie
 
-Transfery: Błyskawiczne zasilanie konta rodzinnego z konta prywatnego.
+**BudżetDomowy** to nie tylko kalkulator wydatków. To zaawansowany system finansowy, który wprowadza pojęcie **"Budżetu Rodzinnego"**. Aplikacja pozwala użytkownikom łączyć się w grupy (rodziny), wspólnie zarządzać środkami i śledzić wydatki w czasie rzeczywistym, zachowując przy tym możliwość prowadzenia prywatnego portfela.
 
-Zarządzanie: Właściciel rodziny może usuwać członków lub rozwiązać grupę.
+Interfejs użytkownika został zaprojektowany w stylu **Glassmorphism**, oferując nowoczesne doświadczenie z pełnym wsparciem dla trybu ciemnego (Dark Mode).
 
-📊 Analiza i Dashboard
-Wykresy: Interaktywny wykres kołowy (Recharts) pokazujący strukturę wydatków w wybranym miesiącu.
+---
 
-Filtrowanie Czasowe: Przeglądanie danych historycznych za pomocą wygodnego selektora daty.
+## 🌟 Kluczowe Funkcjonalności
 
-Eksport Danych: Możliwość pobrania historii transakcji do pliku CSV.
+### 💸 Zarządzanie Finansami
+* **Inteligentne Paragony**: Dodawanie transakcji z podziałem na kategorie i konkretne produkty.
+* **Limity Budżetowe**: Wizualne paski postępu (progress bars) dla każdej kategorii wydatków (Jedzenie, Dom, Rozrywka).
+* **Wielowalutowość**: Automatyczne przeliczanie walut (PLN, USD, EUR).
 
-⚙️ Personalizacja i Bezpieczeństwo
-Motywy: Pełne wsparcie dla Trybu Ciemnego (Dark Mode) i Jasnego.
+### 👨‍👩‍👧‍👦 Moduł Rodzinny (Unikalna Cecha)
+* **Współdzielenie**: Tworzenie rodzin i zapraszanie członków unikalnym kodem (np. `A1B2`).
+* **Tryb Płatności**: Decyduj przy każdym paragonie: *"Płacę z mojego konta"* czy *"Z konta wspólnego"*.
+* **Transfery**: Błyskawiczne zasilanie budżetu domowego z konta prywatnego.
 
-Waluty: Obsługa wielu walut (PLN, USD, EUR) z automatycznym przeliczaniem w interfejsie.
+### 📊 Analiza i Dane
+* **Dashboard**: Interaktywne wykresy kołowe (Recharts) analizujące strukturę wydatków.
+* **Filtrowanie Czasowe**: Przegląd historii transakcji z podziałem na miesiące.
+* **Eksport CSV**: Pobieranie raportów finansowych jednym kliknięciem.
 
-Bezpieczeństwo: Rejestracja, logowanie (JWT Token), hashowanie haseł (BCrypt) oraz mechanizm resetowania hasła.
+---
 
-🛠️ Stack Technologiczny
-Backend (Java Ecosystem)
-Język: Java 25 (Latest Features)
+## 🛠️ Stack Technologiczny
 
-Framework: Spring Boot 4.0.0
+<div align="center">
 
-Baza Danych: H2 Database (In-Memory, tryb deweloperski)
+| Backend (Java Ecosystem) | Frontend (React Ecosystem) |
+| :--- | :--- |
+| **Java 25** (Preview Features) | **React 19** & **Vite** |
+| **Spring Boot 4.0.0** | **Recharts** (Wykresy) |
+| **H2 Database** (In-Memory) | **Axios** (API Client) |
+| **Spring Security** + **JWT** | **React Toastify** (Notifications) |
+| **Gradle** | **CSS Modules** & Variables |
 
-ORM: Spring Data JPA (Hibernate)
+</div>
 
-Security: Spring Security + JWT Authentication
+---
 
-Testy: JUnit 5, Mockito
+## 🚀 Uruchomienie
 
-Frontend (React Ecosystem)
-Framework: React 19 + Vite
+Projekt składa się z dwóch niezależnych części. Uruchom je w osobnych terminalach.
 
-Biblioteki UI: Lucide React (ikony), React Toastify (powiadomienia)
+### Wymagania
+* **Java JDK 25**
+* **Node.js v18+**
 
-Wykresy: Recharts
-
-Komunikacja: Axios (z interceptorami do obsługi tokenów)
-
-Style: Custom CSS z wykorzystaniem zmiennych CSS (dla łatwej obsługi motywów)
-
-🚀 Instrukcja Uruchomienia
-Projekt składa się z dwóch części: serwera (Backend-Java) oraz klienta (Frontend-React).
-
-Wymagania wstępne
-Java JDK 25 (Wymagane ze względu na konfigurację Gradle)
-
-Node.js (v18 lub nowszy)
-
-1. Uruchomienie Backendu
-Przejdź do katalogu backendu:
-
+### 1️⃣ Backend (Serwer)
 cd Backend-Java
-Uruchom aplikację (baza danych zostanie utworzona automatycznie w pamięci):
-
-Windows:
+# Windows
 gradlew.bat bootRun
-
-Linux/Mac:
+# Mac/Linux
 ./gradlew bootRun
-Serwer wystartuje na porcie 8080.
-
-Konsola H2 dostępna pod: http://localhost:8080/h2-console (User: sa, Password: password)
-
-2. Uruchomienie Frontendu
-Otwórz nowy terminal i przejdź do katalogu frontendu:
-
-
+Serwer wystartuje na http://localhost:8080. Baza danych H2 tworzona jest automatycznie w pamięci.
+2️⃣ Frontend (Klient)
 cd Frontend-React
-Zainstaluj zależności:
-
-
 npm install
-Uruchom serwer deweloperski:
-
-
 npm run dev
-Aplikacja będzie dostępna pod adresem: http://localhost:5173
-
-🧪 Przykładowy Scenariusz Użycia
+Aplikacja dostępna pod adresem http://localhost:5173.
+🧪 Scenariusz Testowy (Dla Recenzenta)
 Rejestracja: Załóż konto (hasło min. 8 znaków).
-
-Dodanie środków: Na Dashboardzie kliknij "Dodaj wypłatę", aby zasilić swoje konto.
 
 Tworzenie Rodziny:
 
-Wejdź w zakładkę "Rodzina" i utwórz nową grupę.
+W menu wybierz "Rodzina" -> "Utwórz nową rodzinę".
 
-Skopiuj Kod Zaproszenia i przekaż go innemu użytkownikowi.
+Skopiuj wygenerowany Kod Zaproszenia.
+
+Dołączanie:
+
+Zaloguj się jako inny użytkownik (np. w trybie Incognito).
+
+Wybierz "Rodzina" -> "Dołącz kodem" i wklej kod.
 
 Wspólne Wydatki:
 
-Dodaj paragon klikając "+ Dodaj paragon".
+Dodaj paragon i zaznacz opcję: 👨‍👩‍👧‍👦 To wydatek z konta Rodziny.
 
-Zaznacz opcję "To wydatek z konta Rodziny".
+Sprawdź, czy saldo rodziny zmniejszyło się u obu użytkowników.
 
-Zobaczysz, że saldo rodziny zmalało, a transakcja oznaczona jest jako rodzinna.
-
-Reset Hasła:
-
-Na ekranie logowania wybierz "Zapomniałeś hasła?".
-
-Token resetujący pojawi się w konsoli serwera Backend (symulacja wysyłki e-mail).
-
-📂 Struktura Projektu
-projekty-inzynieria/
-├── Backend-Java/           # Serwer Spring Boot
-│   ├── src/main/java/      # Kod źródłowy Java (Controllers, Services, Models)
-│   └── src/main/resources/ # Konfiguracja (application.properties)
-│
-└── Frontend-React/         # Klient React
-    ├── src/components/     # Komponenty globalne (np. ProtectedRoute)
-    ├── src/pages/          # Widoki (Dashboard, Login, Transactions, Family)
-    └── src/utils/          # Stałe i pomocnicze funkcje
 🔐 Konfiguracja
-Domyślne ustawienia znajdują się w pliku Backend-Java/src/main/resources/application.properties. Możesz tam zmienić:
-
-Dane do bazy H2.
-
-Sekretny klucz JWT (app.jwtSecret).
-
-Autor: Mateusz Janusz,Arkadiusz Matuszewski,Łukasz Malarczuk,Jan Dołżycki Licencja: MIT
+Główne ustawienia (baza danych, tokeny JWT) znajdują się w pliku: Backend-Java/src/main/resources/application.properties
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.h2.console.enabled=true
+app.jwtSecret=ToJestBardzoTajnyKluczDoPodpisuJWT1234567890
+div align="center"> <sub>Projekt inżynierski © 2026. Stworzony z pasją do czystego kodu.</sub> </div>
