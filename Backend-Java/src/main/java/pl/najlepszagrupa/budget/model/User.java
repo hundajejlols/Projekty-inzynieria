@@ -13,10 +13,15 @@ public class User {
     private String username;
     private String email;
     private String password;
-
-    // Dodane pole salda z domyślną wartością 0.0
     private Double balance = 0.0;
 
+    // --- NOWE POLE WYMAGANE ---
+    @ManyToOne
+    @JoinColumn(name = "family_id")
+    private Family family;
+    // --------------------------
+
+    // Gettery i Settery
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUsername() { return username; }
@@ -27,4 +32,7 @@ public class User {
     public void setPassword(String password) { this.password = password; }
     public Double getBalance() { return balance; }
     public void setBalance(Double balance) { this.balance = balance; }
+
+    public Family getFamily() { return family; }
+    public void setFamily(Family family) { this.family = family; }
 }

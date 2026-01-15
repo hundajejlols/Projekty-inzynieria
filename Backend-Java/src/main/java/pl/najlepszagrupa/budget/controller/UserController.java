@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.najlepszagrupa.budget.model.User;
 import pl.najlepszagrupa.budget.service.UserService;
 import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api")
@@ -20,6 +21,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
+        // Brak try-catch! Błędy (duplikat, słabe hasło) obsłuży GlobalExceptionHandler
         User created = userService.addUser(user);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
@@ -33,30 +35,25 @@ public class UserController {
                     "username", username
             ));
         }
+        // Tu ręcznie zwracamy 401, bo checkCredentials zwraca false, a nie rzuca wyjątku
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Błędne dane"));
     }
 
-    // Endpoint pobierający saldo: GET /api/user/Mateusz
     @GetMapping("/user/{username}")
     public ResponseEntity<?> getUserData(@PathVariable String username) {
-        try {
-            User user = userService.findByUsername(username);
-            return ResponseEntity.ok(Map.of("balance", user.getBalance()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Użytkownik nie istnieje"));
-        }
+        // Wyjątek "Użytkownik nie istnieje" poleci do GlobalHandlera i zwróci 400
+        User user = userService.findByUsername(username);
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("balance", user.getBalance());
+        response.put("family", user.getFamily());
+        return ResponseEntity.ok(response);
     }
 
-    // Endpoint dodający saldo: POST /api/user/add-balance
     @PostMapping("/user/add-balance")
     public ResponseEntity<?> addBalance(@RequestBody Map<String, Object> payload) {
-        try {
-            String username = (String) payload.get("username");
-            Double amount = Double.valueOf(payload.get("amount").toString());
-            User updated = userService.addBalance(username, amount);
-            return ResponseEntity.ok(Map.of("newBalance", updated.getBalance()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Nie udało się dodać środków"));
-        }
+        String username = (String) payload.get("username");
+        Double amount = Double.valueOf(payload.get("amount").toString());
+        User updated = userService.addBalance(username, amount);
+        return ResponseEntity.ok(Map.of("newBalance", updated.getBalance()));
     }
 }

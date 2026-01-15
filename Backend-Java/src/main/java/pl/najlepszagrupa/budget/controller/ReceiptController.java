@@ -15,12 +15,12 @@ public class ReceiptController {
     @Autowired
     private ReceiptService receiptService;
 
-    @GetMapping
-    public List<Receipt> getAll() {
-        return receiptService.getAllReceipts();
+    // ZMIANA: Dodano /{username} do ścieżki
+    @GetMapping("/{username}")
+    public List<Receipt> getUserReceipts(@PathVariable String username) {
+        return receiptService.getReceiptsForUser(username);
     }
 
-    // Poprawiona metoda: przyjmuje username z URL
     @PostMapping("/{username}")
     public Receipt addReceipt(@RequestBody Receipt receipt, @PathVariable String username) {
         return receiptService.saveReceipt(receipt, username);

@@ -1,67 +1,78 @@
-# Aplikacja Budżetowa (Inżynieria Oprogramowania)
+# 💰 BudżetDomowy - Next-Gen Finance App
 
-Prosta aplikacja webowa typu Full-Stack do zarządzania budżetem domowym, dodawania paragonów i śledzenia transakcji. Projekt składa się z backendu napisanego w Javie (Spring Boot) oraz frontendu opartego na React (Vite).
+![Project Banner](https://via.placeholder.com/1200x400?text=Budżet+Domowy+2.0+-+Zarządzanie+Finansami)
 
-## 🚀 Technologie
-
-**Backend:**
-* **Język:** Java
-* **Framework:** Spring Boot 3
-* **Baza danych:** H2 (baza in-memory, dane są resetowane po restarcie aplikacji)
-* **Budowanie:** Gradle
-
-**Frontend:**
-* **Biblioteka:** React
-* **Build tool:** Vite
-* **Style:** CSS Modules / Standard CSS
-* **Komunikacja:** Fetch API / Axios (zależnie od implementacji w `authService.js`)
+> Nowoczesna, pełnowymiarowa aplikacja webowa (Full-Stack) do zarządzania budżetem osobistym oraz **współdzielonym budżetem rodzinnym**. Projekt wyróżnia się zaawansowanym interfejsem użytkownika (Glassmorphism, 3D), bezpieczeństwem danych i bogatą funkcjonalnością analityczną.
 
 ---
 
-## 🛠️ Wymagania wstępne
+## 🌟 Kluczowe Funkcjonalności
 
-Aby uruchomić projekt, upewnij się, że masz zainstalowane na komputerze:
-1.  **Java JDK** (wersja 17 lub nowsza).
-2.  **Node.js** (wersja LTS) oraz menedżer pakietów **npm**.
-3.  **Git** (opcjonalnie, do pobierania kodu).
+### 🎨 Nowoczesny Interfejs (UI/UX)
+* **3D Flip Card Login:** Unikalny ekran logowania i rejestracji z animacją obrotu karty 3D i żywym tłem typu "Aurora".
+* **Glassmorphism Dashboard:** Pulpit nawigacyjny wykorzystujący efekty rozmycia i półprzezroczystości, zapewniający czytelność i nowoczesny wygląd.
+* **Responsywność:** Aplikacja dostosowana do urządzeń mobilnych i desktopowych.
+* **Powiadomienia Toast:** Eleganckie, dymkowe powiadomienia o sukcesach i błędach (zamiast systemowych alertów).
+
+### 👨‍👩‍👧‍👦 Moduł Rodzinny (Unikalna cecha!)
+* **Wspólny Portfel:** Możliwość utworzenia nowej rodziny lub dołączenia do istniejącej za pomocą unikalnego kodu (np. `A1B2-C3D4`).
+* **Dwa Tryby Wydatków:** Podczas dodawania paragonu decydujesz: płacisz ze swojego konta czy z konta rodzinnego?
+* **Zarządzanie Środkami:** Możliwość zasilania (przelewania) środków z konta prywatnego na wspólne konto rodzinne.
+
+### 📊 Analiza i Zarządzanie
+* **Filtrowanie Czasowe:** Przeglądanie historii transakcji i wykresów w ujęciu miesięcznym (wybierak daty).
+* **Eksport do CSV:** Możliwość pobrania historii przefiltrowanych transakcji do pliku Excel/CSV jednym kliknięciem.
+* **Wizualizacja:** Interaktywne wykresy kołowe (Recharts) pokazujące strukturę wydatków według kategorii.
+* **Limity Budżetowe:** Paski postępu pokazujące zużycie budżetu w poszczególnych kategoriach (np. Jedzenie, Transport).
+
+### 🛡️ Bezpieczeństwo i Backend
+* **Walidacja Danych:** Zabezpieczenie przed duplikatami loginów/emaili oraz wymuszanie silnych haseł.
+* **Global Exception Handling:** Centralna obsługa błędów na backendzie, zwracająca czytelne komunikaty do frontendu.
+* **Architektura:** Czysty podział na warstwy (Controller, Service, Repository, Model).
 
 ---
 
-## ⚙️ Instrukcja uruchomienia
+## 🛠️ Stack Technologiczny
 
-Aplikacja składa się z dwóch niezależnych serwerów. Należy uruchomić je jednocześnie w dwóch osobnych oknach terminala.
+### Backend (Java Ecosystem)
+* **Język:** Java 25 (Latest LTS/Feature release)
+* **Framework:** Spring Boot 4.0.0
+* **Baza Danych:** H2 Database (In-Memory, szybka i lekka)
+* **ORM:** Spring Data JPA (Hibernate)
+* **Bezpieczeństwo:** Spring Security (BCrypt Password Hashing)
+* **Build Tool:** Gradle
 
-### Krok 1: Uruchomienie Backendu (Java)
+### Frontend (React Ecosystem)
+* **Framework:** React 19 + Vite
+* **Komunikacja:** Axios (HTTP Client)
+* **Wykresy:** Recharts
+* **UI Components:** React-Toastify
+* **Style:** Custom CSS 3 (CSS Variables, Flexbox, Grid, Animations, 3D Transforms)
 
-Serwer backendowy odpowiada za logikę biznesową i bazę danych. Domyślnie działa na porcie `8080`.
+---
 
-1.  Otwórz terminal.
+## 🚀 Instrukcja Uruchomienia
+
+Projekt składa się z dwóch niezależnych części: serwera API oraz klienta React. Należy uruchomić je w osobnych terminalach.
+
+### Krok 1: Backend (Serwer)
+1.  Otwórz terminal w folderze projektu.
 2.  Przejdź do katalogu backendu:
     ```bash
     cd Backend-Java
     ```
-3.  Uruchom aplikację używając Gradle Wrapper:
-    * **Windows:**
-        ```bash
-        gradlew.bat bootRun
-        ```
-    * **Linux / macOS:**
-        ```bash
-        chmod +x gradlew  # (tylko jeśli brakuje uprawnień)
-        ./gradlew bootRun
-        ```
-4.  Poczekaj na komunikat `Started BudgetApplication in ... seconds`.
+3.  Uruchom aplikację za pomocą Gradle Wrapper:
+    * **Windows:** `gradlew.bat bootRun`
+    * **Mac/Linux:** `./gradlew bootRun`
+4.  Serwer wystartuje na porcie `8080`.
 
-### Krok 2: Uruchomienie Frontendu (React)
-
-Interfejs użytkownika, który łączy się z backendem. Domyślnie działa na porcie `5173`.
-
+### Krok 2: Frontend (Klient)
 1.  Otwórz **nowe** okno terminala.
 2.  Przejdź do katalogu frontendu:
     ```bash
     cd Frontend-React
     ```
-3.  Zainstaluj zależności (tylko przy pierwszym uruchomieniu):
+3.  Zainstaluj zależności (wymagane tylko przy pierwszym uruchomieniu):
     ```bash
     npm install
     ```
@@ -69,22 +80,31 @@ Interfejs użytkownika, który łączy się z backendem. Domyślnie działa na p
     ```bash
     npm run dev
     ```
-5.  Kliknij w link widoczny w terminalu (zazwyczaj `http://localhost:5173`), aby otworzyć aplikację w przeglądarce.
+5.  Aplikacja będzie dostępna pod adresem: `http://localhost:5173`
 
 ---
 
-## 🌟 Funkcjonalności
+## 🧪 Scenariusz Testowy (Dla Recenzenta)
 
-* **Rejestracja i Logowanie:** Zabezpieczony dostęp do aplikacji.
-* **Dashboard:** Podgląd ogólnego stanu budżetu.
-* **Dodawanie Paragonów:** Formularz (`AddReceiptModal`) umożliwiający wprowadzanie nowych wydatków.
-* **Lista Transakcji:** Przeglądanie historii wydatków (`TransactionsPage`).
+Aby w pełni przetestować możliwości aplikacji, wykonaj poniższe kroki:
 
----
-
-## 🐛 Rozwiązywanie problemów
-
-**1. Port 8080 jest zajęty:**
-Jeśli backend nie chce wystartować z błędem "Address already in use", musisz zwolnić port 8080 lub zmienić go w pliku `Backend-Java/src/main/resources/application.properties`:
-```properties
-server.port=8081
+1.  **Rejestracja Rodziców:**
+    * Zarejestruj użytkownika `Jan` (hasło min. 8 znaków).
+    * Zarejestruj użytkownika `Anna`.
+2.  **Tworzenie Rodziny (Jan):**
+    * Zaloguj się jako `Jan`.
+    * Dodaj przychód (np. 5000 PLN).
+    * Wejdź w zakładkę **Rodzina** -> "Utwórz nową rodzinę" (np. "Kowalscy").
+    * Skopiuj wygenerowany **Kod Zaproszenia**.
+    * Wpłać 2000 PLN na konto rodzinne ("Zasil konto rodziny").
+3.  **Dołączanie (Anna):**
+    * Zaloguj się jako `Anna` (w innej karcie/przeglądarce).
+    * Wejdź w zakładkę **Rodzina** -> "Dołącz kodem". Wklej kod od Jana.
+    * Zauważ, że Anna widzi teraz "Budżet Rodzinny: 2000 PLN".
+4.  **Wspólne Wydatki:**
+    * Jako `Anna` dodaj paragon (np. "Biedronka", 200 PLN).
+    * Zaznacz checkbox: **"👨‍👩‍👧‍👦 To wydatek z konta Rodziny"**.
+    * Sprawdź Dashboard: Saldo rodziny spadło do 1800 PLN (zarówno u Anny, jak i u Jana).
+5.  **Analiza i Eksport:**
+    * Zmień miesiąc w filtrze na górze ekranu (zobaczysz brak danych dla innych miesięcy).
+    * Kliknij przycisk **"📥 Eksportuj CSV"** w menu bocznym, aby pobrać raport.

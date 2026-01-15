@@ -22,6 +22,21 @@ public class UserService {
     }
 
     public User addUser(User user) {
+        // WALIDACJA DANYCH
+        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+            throw new RuntimeException("Nazwa użytkownika nie może być pusta!");
+        }
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new RuntimeException("Ta nazwa użytkownika jest już zajęta!");
+        }
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException("Ten email jest już używany!");
+        }
+        // POPRAWKA: Wymuszamy minimum 8 znaków
+        if (user.getPassword() == null || user.getPassword().length() < 8) {
+            throw new RuntimeException("Hasło musi mieć co najmniej 8 znaków!");
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }

@@ -29,7 +29,8 @@ public class SecurityConfig {
                         // ODBLOKOWANE ŚCIEŻKI:
                         .requestMatchers("/api/register", "/api/login").permitAll()
                         .requestMatchers("/api/receipts/**").permitAll()
-                        .requestMatchers("/api/user/**").permitAll() // To naprawia błąd 401 przy saldzie
+                        .requestMatchers("/api/user/**").permitAll()
+                        .requestMatchers("/api/family/**").permitAll() // <--- DODAJ TO
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )

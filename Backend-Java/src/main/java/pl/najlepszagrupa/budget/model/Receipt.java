@@ -14,9 +14,15 @@ public class Receipt {
     private String shopName;
     private Double totalAmount;
     private LocalDate date;
-
-    // NOWE POLE: Kategoria
     private String category;
+
+    // --- NOWE POLA WYMAGANE DO DZIAŁANIA RODZINY ---
+    private boolean isFamilyExpense = false;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user; // Relacja do użytkownika
+    // -----------------------------------------------
 
     @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
@@ -31,8 +37,15 @@ public class Receipt {
     public void setTotalAmount(Double totalAmount) { this.totalAmount = totalAmount; }
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
-    public String getCategory() { return category; } // Getter
-    public void setCategory(String category) { this.category = category; } // Setter
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
     public List<ReceiptItem> getItems() { return items; }
     public void setItems(List<ReceiptItem> items) { this.items = items; }
+
+    // Gettery i Settery dla nowych pól
+    public boolean getIsFamilyExpense() { return isFamilyExpense; }
+    public void setIsFamilyExpense(boolean familyExpense) { isFamilyExpense = familyExpense; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }
