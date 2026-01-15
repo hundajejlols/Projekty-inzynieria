@@ -1,19 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --secondary: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --bg-color: #f8fafc;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --card-bg: #ffffff;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.15);
+  /* Profesjonalna paleta biznesowa (Slate & Royal Blue) */
+  --primary: #2563eb;       /* Royal Blue */
+  --primary-hover: #1d4ed8;
+  --primary-light: #eff6ff; /* Bardzo jasny niebieski tła */
+  
+  --secondary: #0f172a;     /* Ciemny granat (prawie czarny) - do nagłówków */
+  --accent: #10b981;        /* Emerald - do finansów (plus) */
+  --danger: #ef4444;        /* Red - do wydatków (minus) */
+  
+  --bg-body: #f8fafc;       /* Slate 50 - tło całej aplikacji */
+  --bg-card: #ffffff;       /* Czysta biel kart */
+  --border-color: #e2e8f0;  /* Slate 200 - subtelne ramki */
+  
+  --text-main: #0f172a;     /* Slate 900 - główny tekst */
+  --text-secondary: #64748b; /* Slate 500 - opisy */
+  
+  /* Subtelne cienie, a nie "glow" */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 * {
@@ -23,27 +29,17 @@
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  background-color: var(--bg-color);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; /* Inter jest standardem w biznesie */
+  background-color: var(--bg-body);
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
 }
 
-/* Pasek przewijania */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-button {
-  font-family: inherit;
-}
+button { font-family: inherit; }

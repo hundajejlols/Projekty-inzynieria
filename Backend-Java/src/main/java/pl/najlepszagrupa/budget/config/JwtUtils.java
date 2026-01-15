@@ -2,6 +2,8 @@ package pl.najlepszagrupa.budget.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -10,14 +12,19 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    // W prawdziwym projekcie ten klucz trzymaj w application.properties!
-    // Klucz musi mieć min. 256 bitów (32 znaki)
-    private static final String SECRET_KEY = "JwtToken";
-    private static final long EXPIRATION_TIME = 86400000; // 24 godziny (w milisekundach)
+    // Wstrzykujemy wartość z application.properties
+    @Value("${app.jwtSecret}")
+    private String jwtSecret;
 
-    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    private static final long EXPIRATION_TIME = 86400000; // 24 godziny
+    private Key key;
 
-    // Generowanie tokena dla użytkownika
+    // Ta metoda uruchomi się automatycznie po wstrzyknięciu zależności
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
+
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -27,7 +34,6 @@ public class JwtUtils {
                 .compact();
     }
 
-    // Wyciąganie nazwy użytkownika z tokena
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -37,13 +43,11 @@ public class JwtUtils {
                 .getSubject();
     }
 
-    // Walidacja tokena
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            // Token nieprawidłowy lub wygasł
             return false;
         }
     }

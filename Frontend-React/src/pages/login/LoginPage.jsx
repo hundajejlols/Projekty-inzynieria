@@ -7,191 +7,90 @@ import './Login.css';
 
 const LoginPage = () => {
     const [isLoginView, setIsLoginView] = useState(true);
-    const [credentials, setCredentials] = useState({ 
-        username: '', 
-        password: '', 
-        email: '' 
-    });
-    const [error, setError] = useState('');
+    const [credentials, setCredentials] = useState({ username: '', password: '', email: '' });
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        setCredentials({ ...credentials, [e.target.name]: e.target.value });
-    };
+    const handleChange = (e) => setCredentials({ ...credentials, [e.target.name]: e.target.value });
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError('');
         setLoading(true);
         try {
             const response = await axios.post(`${API_URL}/login`, {
                 username: credentials.username,
                 password: credentials.password
             });
-            
-            // --- ZMIANA: Odbieramy token i username ---
             const { token, username } = response.data;
-
             if (token) {
                 localStorage.setItem('jwtToken', token);
                 localStorage.setItem('username', username);
-                
-                toast.success(`Witaj ponownie, ${username}! 👋`);
+                toast.success(`Witaj, ${username}!`);
                 navigate('/dashboard');
-            } else {
-                throw new Error("Brak tokena w odpowiedzi");
             }
-            // ------------------------------------------
-
         } catch (err) {
-            toast.error(err.response?.data?.error || 'Błędny login lub hasło');
-            setLoading(false);
-        }
+            toast.error(err.response?.data?.error || 'Błąd logowania');
+        } finally { setLoading(false); }
     };
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        setError('');
-
         if (credentials.password.length < 8) {
-            toast.warn('Hasło musi mieć min. 8 znaków 🔒');
-            return;
+            toast.warn('Hasło min. 8 znaków'); return;
         }
-
         setLoading(true);
         try {
-            await axios.post(`${API_URL}/register`, {
-                username: credentials.username,
-                password: credentials.password,
-                email: credentials.email
-            });
-            
-            toast.success('Sukces! Konto utworzone. Zaloguj się teraz. 🚀');
-            
+            await axios.post(`${API_URL}/register`, credentials);
+            toast.success('Konto utworzone. Zaloguj się.');
             setIsLoginView(true);
             setCredentials({ ...credentials, password: '' });
-            setLoading(false);
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Błąd rejestracji.');
-            setLoading(false);
-        }
-    };
-
-    const toggleView = () => {
-        setIsLoginView(!isLoginView);
-        setError('');
-        setCredentials({ username: '', password: '', email: '' });
+            toast.error('Błąd rejestracji. Login/email zajęty.');
+        } finally { setLoading(false); }
     };
 
     return (
-        <div className="auth-container">
-            <div className="floating-shape shape-1">💎</div>
-            <div className="floating-shape shape-2">🚀</div>
-
-            <div className="flip-container">
-                <div className={`flipper ${!isLoginView ? 'flipped' : ''}`}>
-                    
-                    {/* PRZÓD - LOGOWANIE */}
-                    <div className="card-front">
-                        <h1 className="brand-title">BudżetDomowy</h1>
-                        <p className="subtitle">Witaj ponownie! 👋</p>
-
-                        <form onSubmit={handleLogin}>
-                            <div className="field-auth">
-                                <label className="input-label">
-                                    <span className="label-icon">👤</span> Użytkownik
-                                </label>
-                                <input 
-                                    name="username" 
-                                    type="text" 
-                                    placeholder="Wpisz swój login" 
-                                    value={credentials.username}
-                                    onChange={handleChange}
-                                    required 
-                                />
-                            </div>
-                            <div className="field-auth">
-                                <label className="input-label">
-                                    <span className="label-icon">🔒</span> Hasło
-                                </label>
-                                <input 
-                                    name="password" 
-                                    type="password" 
-                                    placeholder="Wpisz hasło" 
-                                    value={credentials.password}
-                                    onChange={handleChange}
-                                    required 
-                                />
-                            </div>
-                            <button type="submit" className="submit-btn-glow" disabled={loading}>
-                                {loading ? 'Logowanie...' : 'Zaloguj się'}
-                            </button>
-                        </form>
-
-                        <div className="switch-text">
-                            Nie masz konta? 
-                            <button className="switch-btn" onClick={toggleView}>Zarejestruj się</button>
-                        </div>
-                    </div>
-
-                    {/* TYŁ - REJESTRACJA */}
-                    <div className="card-back">
-                        <h1 className="brand-title">Dołącz do nas</h1>
-                        <p className="subtitle">Zacznij oszczędzać już dziś 🚀</p>
-
-                        <form onSubmit={handleRegister}>
-                            <div className="field-auth">
-                                <label className="input-label">
-                                    <span className="label-icon">✉️</span> Email
-                                </label>
-                                <input 
-                                    name="email" 
-                                    type="email" 
-                                    placeholder="twoj@email.com" 
-                                    value={credentials.email}
-                                    onChange={handleChange}
-                                    required 
-                                />
-                            </div>
-                            <div className="field-auth">
-                                <label className="input-label">
-                                    <span className="label-icon">👤</span> Login
-                                </label>
-                                <input 
-                                    name="username" 
-                                    type="text" 
-                                    placeholder="Wybierz unikalny login" 
-                                    value={credentials.username}
-                                    onChange={handleChange}
-                                    required 
-                                />
-                            </div>
-                            <div className="field-auth">
-                                <label className="input-label">
-                                    <span className="label-icon">🔑</span> Hasło
-                                </label>
-                                <input 
-                                    name="password" 
-                                    type="password" 
-                                    placeholder="Minimum 8 znaków" 
-                                    value={credentials.password}
-                                    onChange={handleChange}
-                                    required 
-                                />
-                            </div>
-                            <button type="submit" className="submit-btn-glow" style={{background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'}} disabled={loading}>
-                                {loading ? 'Tworzenie...' : 'Stwórz konto'}
-                            </button>
-                        </form>
-
-                        <div className="switch-text">
-                            Masz już konto? 
-                            <button className="switch-btn" onClick={toggleView} style={{color:'#10b981', borderColor:'#10b981'}}>Zaloguj się</button>
-                        </div>
-                    </div>
-
+        <div className="login-wrapper">
+            <div className="login-card">
+                <div className="login-header">
+                    <div className="logo-icon">💰</div>
+                    <h1>BudżetDomowy</h1>
+                    <p>{isLoginView ? 'Zaloguj się do panelu' : 'Załóż nowe konto'}</p>
                 </div>
+
+                <form onSubmit={isLoginView ? handleLogin : handleRegister}>
+                    {!isLoginView && (
+                        <div className="form-group">
+                            <label>Email</label>
+                            <input name="email" type="email" placeholder="jan@kowalski.pl" onChange={handleChange} required />
+                        </div>
+                    )}
+                    
+                    <div className="form-group">
+                        <label>Użytkownik</label>
+                        <input name="username" type="text" placeholder="Login" onChange={handleChange} required />
+                    </div>
+                    
+                    <div className="form-group">
+                        <label>Hasło</label>
+                        <input name="password" type="password" placeholder="••••••••" onChange={handleChange} required />
+                    </div>
+
+                    <button type="submit" className="btn-primary" disabled={loading}>
+                        {loading ? 'Przetwarzanie...' : (isLoginView ? 'Zaloguj się' : 'Zarejestruj się')}
+                    </button>
+                </form>
+
+                <div className="login-footer">
+                    {isLoginView ? 'Nie masz konta? ' : 'Masz już konto? '}
+                    <span onClick={() => setIsLoginView(!isLoginView)}>
+                        {isLoginView ? 'Załóż je tutaj' : 'Zaloguj się'}
+                    </span>
+                </div>
+            </div>
+            
+            <div className="login-footer-text">
+                © 2026 BudżetDomowy Enterprise. Bezpieczeństwo i kontrola.
             </div>
         </div>
     );

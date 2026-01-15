@@ -5,6 +5,7 @@ import { API_URL } from '../../config';
 import AddReceiptModal from '../addReceipts/AddReceiptModal';
 import AddIncomeModal from '../addIncome/AddIncomeModal';
 import FamilyModal from '../family/FamilyModal';
+import EditLimitModal from './EditLimitModal'; // <--- NOWY IMPORT
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { toast } from 'react-toastify';
 import './Dashboard.css';
@@ -14,14 +15,19 @@ const Dashboard = () => {
     const [transactions, setTransactions] = useState([]);
     const [balance, setBalance] = useState(0);
     const [familyData, setFamilyData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    
+    // Modale
     const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
     const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
     const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
     
-    // Domyślny miesiąc: obecny
+    // NOWE STANY: Edycja limitu i Zwijanie sekcji
+    const [isEditLimitOpen, setIsEditLimitOpen] = useState(false);
+    const [editingCategory, setEditingCategory] = useState({ name: '', limit: 0 });
+    const [isBudgetExpanded, setIsBudgetExpanded] = useState(true); 
+
     const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
-    
     const userName = localStorage.getItem('username') || 'Użytkownik';
 
     const defaultLimits = {
@@ -76,15 +82,18 @@ const Dashboard = () => {
 
     const monthlySpent = useMemo(() => filteredTransactions.reduce((acc, t) => acc + t.totalAmount, 0), [filteredTransactions]);
 
-    const handleEditLimit = (category) => {
-        const currentLimit = limits[category];
-        const newLimit = prompt(`Nowy limit dla: ${category}`, currentLimit);
-        if (newLimit !== null && !isNaN(newLimit) && Number(newLimit) > 0) {
-            const updatedLimits = { ...limits, [category]: parseFloat(newLimit) };
-            setLimits(updatedLimits);
-            localStorage.setItem(`budgetLimits_${userName}`, JSON.stringify(updatedLimits));
-            toast.info(`Zaktualizowano limit dla ${category}`);
-        }
+    // Otwieranie nowego modala
+    const openEditLimit = (category) => {
+        setEditingCategory({ name: category, limit: limits[category] });
+        setIsEditLimitOpen(true);
+    };
+
+    // Zapisywanie limitu (wywoływane przez modal)
+    const saveLimit = (category, newLimit) => {
+        const updatedLimits = { ...limits, [category]: newLimit };
+        setLimits(updatedLimits);
+        localStorage.setItem(`budgetLimits_${userName}`, JSON.stringify(updatedLimits));
+        toast.success(`Zaktualizowano limit dla: ${category}`);
     };
 
     const getProgressBarColor = (spent, limit) => {
@@ -99,21 +108,11 @@ const Dashboard = () => {
             toast.warn("Brak danych do eksportu w tym miesiącu.");
             return;
         }
-
         const headers = ["Data", "Sklep", "Kategoria", "Kwota (PLN)", "Typ"];
         const rows = filteredTransactions.map(t => [
-            t.date,
-            `"${t.shopName}"`,
-            t.category,
-            t.totalAmount.toFixed(2),
-            t.isFamilyExpense ? "Rodzinny" : "Osobisty"
+            t.date, `"${t.shopName}"`, t.category, t.totalAmount.toFixed(2), t.isFamilyExpense ? "Rodzinny" : "Osobisty"
         ]);
-
-        const csvContent = [
-            headers.join(","),
-            ...rows.map(e => e.join(","))
-        ].join("\n");
-
+        const csvContent = [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -127,10 +126,8 @@ const Dashboard = () => {
 
     const handleLogout = () => {
         if (window.confirm("Wylogować?")) {
-            // --- ZMIANA: Usuwamy token ---
             localStorage.removeItem('username');
-            localStorage.removeItem('jwtToken'); 
-            // -----------------------------
+            localStorage.removeItem('jwtToken');
             navigate('/login');
             toast.info("Wylogowano pomyślnie 👋");
         }
@@ -147,7 +144,6 @@ const Dashboard = () => {
                     <div className="s-link" onClick={() => navigate('/transactions')}>💸 Transakcje</div>
                     <div className="s-link" onClick={() => setIsFamilyModalOpen(true)}>👨‍👩‍👧‍👦 Rodzina</div>
                 </nav>
-                
                 <div style={{marginTop: 'auto', paddingBottom: '10px'}}>
                     <button className="s-export" onClick={handleExportCSV}>📥 Eksportuj CSV</button>
                 </div>
@@ -155,44 +151,29 @@ const Dashboard = () => {
             </aside>
 
             <main className="dashboard-main">
-                <header className="dash-header" style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                <header className="dash-header">
                     <div>
                         <h1>Cześć, {userName}! 👋</h1>
                         <p>Twoje finanse pod kontrolą.</p>
                     </div>
-                    
                     <div className="month-selector">
-                        <input 
-                            type="month" 
-                            value={selectedMonth} 
-                            onChange={(e) => setSelectedMonth(e.target.value)}
-                            className="modern-date-input"
-                        />
+                        <input type="month" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} className="modern-date-input"/>
                     </div>
                 </header>
 
                 <div className="stat-cards">
                     <div className="stat-card">
                         <span>Dostępne Saldo</span>
-                        <h3 className={balance < 0 ? 'balance-negative' : 'balance-positive'}>
-                            {formatCurrency(balance)}
-                        </h3>
+                        <h3 className={balance < 0 ? 'balance-negative' : 'balance-positive'}>{formatCurrency(balance)}</h3>
                     </div>
                     <div className="stat-card">
                         <span>Wydatki ({selectedMonth})</span>
-                        <h3 style={{color: '#ef4444'}}>
-                            {formatCurrency(monthlySpent)}
-                        </h3>
+                        <h3 style={{color: '#ef4444'}}>{formatCurrency(monthlySpent)}</h3>
                     </div>
                     <div className="stat-card" style={{borderColor: familyData ? '#2563eb' : '#e2e8f0'}}>
                         <span>Budżet Rodzinny</span>
-                        {familyData ? (
-                            <h3 style={{color: '#2563eb'}}>{formatCurrency(familyData.familyBalance)}</h3>
-                        ) : (
-                            <div style={{marginTop:'10px', color:'#94a3b8', fontSize:'0.9rem', cursor:'pointer'}} onClick={() => setIsFamilyModalOpen(true)}>
-                                + Utwórz / Dołącz
-                            </div>
-                        )}
+                        {familyData ? <h3 style={{color: '#2563eb'}}>{formatCurrency(familyData.familyBalance)}</h3> 
+                        : <div style={{marginTop:'10px', color:'#94a3b8', fontSize:'0.9rem', cursor:'pointer'}} onClick={() => setIsFamilyModalOpen(true)}>+ Utwórz / Dołącz</div>}
                     </div>
                 </div>
 
@@ -216,9 +197,9 @@ const Dashboard = () => {
                         </section>
 
                         <section className="recent-activity">
-                            <div className="section-header-flex">
-                                <h3>Ostatnie w tym miesiącu</h3>
-                                <button className="text-btn" onClick={() => navigate('/transactions')}>Pełna historia</button>
+                            <div className="section-header-flex" style={{display:'flex', justifyContent:'space-between', marginBottom:'1.5rem'}}>
+                                <h3>Ostatnie transakcje</h3>
+                                <button className="text-btn" onClick={() => navigate('/transactions')}>Pełna historia →</button>
                             </div>
                             <div className="t-list">
                                 {filteredTransactions.slice(0, 5).map(t => (
@@ -243,30 +224,49 @@ const Dashboard = () => {
                             {familyData && <button className="btn-income" style={{background:'#2563eb'}} onClick={() => setIsFamilyModalOpen(true)}>👨‍👩‍👧‍👦 Zarządzaj rodziną</button>}
                         </section>
 
+                        {/* --- NOWA SEKCJA BUDŻETU (Zwijana) --- */}
                         <section className="budget-limits-section">
-                            <h3>Budżet na {selectedMonth}</h3>
-                            <div className="limits-list">
-                                {Object.keys(limits).map(cat => {
-                                    const spent = spendingByCategory[cat] || 0;
-                                    const limit = limits[cat];
-                                    const percentage = Math.min((spent / limit) * 100, 100);
-                                    const color = getProgressBarColor(spent, limit);
-
-                                    return (
-                                        <div key={cat} className="limit-item">
-                                            <div className="limit-header">
-                                                <span className="limit-name">{cat}</span>
-                                                <span className="limit-values" onClick={() => handleEditLimit(cat)} title="Edytuj limit">
-                                                    {formatCurrency(spent)} / {formatCurrency(limit)} ✏️
-                                                </span>
-                                            </div>
-                                            <div className="progress-bar-bg">
-                                                <div className="progress-bar-fill" style={{ width: `${percentage}%`, backgroundColor: color }}></div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                            <div 
+                                className="section-header-flex" 
+                                onClick={() => setIsBudgetExpanded(!isBudgetExpanded)}
+                                style={{display:'flex', justifyContent:'space-between', cursor:'pointer', alignItems:'center'}}
+                            >
+                                <h3>Cele budżetowe 🎯</h3>
+                                <span style={{fontSize:'1.2rem', color:'var(--text-secondary)'}}>
+                                    {isBudgetExpanded ? '▲' : '▼'}
+                                </span>
                             </div>
+                            
+                            {isBudgetExpanded && (
+                                <div className="limits-list" style={{marginTop:'1.5rem', animation: 'fadeIn 0.3s'}}>
+                                    {Object.keys(limits).map(cat => {
+                                        const spent = spendingByCategory[cat] || 0;
+                                        const limit = limits[cat];
+                                        const percentage = Math.min((spent / limit) * 100, 100);
+                                        const color = getProgressBarColor(spent, limit);
+
+                                        return (
+                                            <div key={cat} className="limit-item">
+                                                <div className="limit-header">
+                                                    <span className="limit-name">{cat}</span>
+                                                    {/* Kliknięcie otwiera MODAL */}
+                                                    <span className="limit-values" onClick={() => openEditLimit(cat)} title="Kliknij, aby edytować">
+                                                        {formatCurrency(spent)} / <strong>{formatCurrency(limit)}</strong> ✏️
+                                                    </span>
+                                                </div>
+                                                <div className="progress-bar-bg">
+                                                    <div className="progress-bar-fill" style={{ width: `${percentage}%`, backgroundColor: color }}></div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                            {!isBudgetExpanded && (
+                                <p style={{color:'var(--text-secondary)', fontSize:'0.9rem', marginTop:'10px'}}>
+                                    Rozwiń, aby zarządzać limitami wydatków na poszczególne kategorie.
+                                </p>
+                            )}
                         </section>
                     </div>
                 </div>
@@ -275,6 +275,15 @@ const Dashboard = () => {
             <AddReceiptModal isOpen={isReceiptModalOpen} onClose={() => setIsReceiptModalOpen(false)} onRefresh={fetchData} />
             <AddIncomeModal isOpen={isIncomeModalOpen} onClose={() => setIsIncomeModalOpen(false)} onRefresh={fetchData} />
             <FamilyModal isOpen={isFamilyModalOpen} onClose={() => setIsFamilyModalOpen(false)} onRefresh={fetchData} currentFamily={familyData} />
+            
+            {/* NOWY MODAL */}
+            <EditLimitModal 
+                isOpen={isEditLimitOpen} 
+                onClose={() => setIsEditLimitOpen(false)} 
+                onSave={saveLimit}
+                category={editingCategory.name}
+                currentLimit={editingCategory.limit}
+            />
         </div>
     );
 };
