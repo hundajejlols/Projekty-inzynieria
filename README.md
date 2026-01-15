@@ -75,7 +75,6 @@ Projekt składa się z dwóch niezależnych części. Uruchom je w osobnych term
 * **Node.js v18+**
 
 ### 1️⃣ Backend (Serwer)
-```bash
 cd Backend-Java
 # Windows
 gradlew.bat bootRun
