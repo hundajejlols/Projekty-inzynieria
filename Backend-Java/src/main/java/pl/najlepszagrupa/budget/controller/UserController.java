@@ -2,11 +2,17 @@ package pl.najlepszagrupa.budget.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
+import pl.najlepszagrupa.budget.config.JwtUtils;
 import pl.najlepszagrupa.budget.model.User;
 import pl.najlepszagrupa.budget.service.UserService;
-import java.util.Map;
+
 import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -14,34 +20,51 @@ import java.util.HashMap;
 public class UserController {
 
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
         this.userService = userService;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtils = jwtUtils;
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
-        // Brak try-catch! Błędy (duplikat, słabe hasło) obsłuży GlobalExceptionHandler
         User created = userService.addUser(user);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
-        String username = credentials.get("username");
-        if (userService.checkCredentials(username, credentials.get("password"))) {
+        try {
+            // 1. Spring Security sprawdza hasło (automatycznie używa PasswordEncoder)
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            credentials.get("username"),
+                            credentials.get("password")
+                    )
+            );
+
+            // 2. Jeśli OK -> generujemy token
+            String token = jwtUtils.generateToken(auth.getName());
+
+            // 3. Zwracamy token i nazwę użytkownika
             return ResponseEntity.ok(Map.of(
-                    "message", "Zalogowano",
-                    "username", username
+                    "token", token,
+                    "username", auth.getName(),
+                    "message", "Zalogowano pomyślnie"
             ));
+
+        } catch (AuthenticationException e) {
+            // Jeśli hasło złe -> 401 Unauthorized
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Błędny login lub hasło"));
         }
-        // Tu ręcznie zwracamy 401, bo checkCredentials zwraca false, a nie rzuca wyjątku
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Błędne dane"));
     }
 
     @GetMapping("/user/{username}")
     public ResponseEntity<?> getUserData(@PathVariable String username) {
-        // Wyjątek "Użytkownik nie istnieje" poleci do GlobalHandlera i zwróci 400
         User user = userService.findByUsername(username);
         HashMap<String, Object> response = new HashMap<>();
         response.put("balance", user.getBalance());

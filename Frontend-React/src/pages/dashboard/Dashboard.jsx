@@ -94,7 +94,6 @@ const Dashboard = () => {
         return '#10b981';                         
     };
 
-    // --- NOWA FUNKCJA: Eksport do Excela (CSV) ---
     const handleExportCSV = () => {
         if (filteredTransactions.length === 0) {
             toast.warn("Brak danych do eksportu w tym miesiącu.");
@@ -104,7 +103,7 @@ const Dashboard = () => {
         const headers = ["Data", "Sklep", "Kategoria", "Kwota (PLN)", "Typ"];
         const rows = filteredTransactions.map(t => [
             t.date,
-            `"${t.shopName}"`, // cudzysłów na wypadek przecinka w nazwie
+            `"${t.shopName}"`,
             t.category,
             t.totalAmount.toFixed(2),
             t.isFamilyExpense ? "Rodzinny" : "Osobisty"
@@ -128,7 +127,10 @@ const Dashboard = () => {
 
     const handleLogout = () => {
         if (window.confirm("Wylogować?")) {
+            // --- ZMIANA: Usuwamy token ---
             localStorage.removeItem('username');
+            localStorage.removeItem('jwtToken'); 
+            // -----------------------------
             navigate('/login');
             toast.info("Wylogowano pomyślnie 👋");
         }
@@ -146,7 +148,6 @@ const Dashboard = () => {
                     <div className="s-link" onClick={() => setIsFamilyModalOpen(true)}>👨‍👩‍👧‍👦 Rodzina</div>
                 </nav>
                 
-                {/* Nowy przycisk Export w Sidebarze */}
                 <div style={{marginTop: 'auto', paddingBottom: '10px'}}>
                     <button className="s-export" onClick={handleExportCSV}>📥 Eksportuj CSV</button>
                 </div>

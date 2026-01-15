@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../config';
-import { toast } from 'react-toastify'; // Importujemy toasty
+import { toast } from 'react-toastify'; 
 import './Login.css';
 
 const LoginPage = () => {
@@ -29,13 +29,22 @@ const LoginPage = () => {
                 username: credentials.username,
                 password: credentials.password
             });
-            const user = response.data.username || credentials.username;
-            localStorage.setItem('username', user);
             
-            toast.success(`Witaj ponownie, ${user}! 👋`); // Powitanie po zalogowaniu
-            navigate('/dashboard');
+            // --- ZMIANA: Odbieramy token i username ---
+            const { token, username } = response.data;
+
+            if (token) {
+                localStorage.setItem('jwtToken', token);
+                localStorage.setItem('username', username);
+                
+                toast.success(`Witaj ponownie, ${username}! 👋`);
+                navigate('/dashboard');
+            } else {
+                throw new Error("Brak tokena w odpowiedzi");
+            }
+            // ------------------------------------------
+
         } catch (err) {
-            // Toast błędu zamiast tekstu w divie (opcjonalnie, ale wygląda lepiej)
             toast.error(err.response?.data?.error || 'Błędny login lub hasło');
             setLoading(false);
         }
@@ -58,7 +67,6 @@ const LoginPage = () => {
                 email: credentials.email
             });
             
-            // --- ZMIANA TUTAJ: Zamiast brzydkiego alert() ---
             toast.success('Sukces! Konto utworzone. Zaloguj się teraz. 🚀');
             
             setIsLoginView(true);
@@ -91,7 +99,6 @@ const LoginPage = () => {
 
                         <form onSubmit={handleLogin}>
                             <div className="field-auth">
-                                {/* Ikona jest teraz częścią etykiety - nie najedzie na input */}
                                 <label className="input-label">
                                     <span className="label-icon">👤</span> Użytkownik
                                 </label>

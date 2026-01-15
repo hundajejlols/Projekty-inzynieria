@@ -1,12 +1,17 @@
 package pl.najlepszagrupa.budget.service;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.najlepszagrupa.budget.model.User;
 import pl.najlepszagrupa.budget.repository.UserRepository;
 
+import java.util.ArrayList;
+
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -16,13 +21,26 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // --- Metoda wymagana przez Spring Security (UserDetailsService) ---
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Użytkownik nie znaleziony: " + username));
+
+        // Zwracamy obiekt UserDetails Springa (uproszczony, bez ról)
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                new ArrayList<>() // brak ról
+        );
+    }
+
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Użytkownik nie istnieje"));
     }
 
     public User addUser(User user) {
-        // WALIDACJA DANYCH
         if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
             throw new RuntimeException("Nazwa użytkownika nie może być pusta!");
         }
@@ -32,7 +50,6 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("Ten email jest już używany!");
         }
-        // POPRAWKA: Wymuszamy minimum 8 znaków
         if (user.getPassword() == null || user.getPassword().length() < 8) {
             throw new RuntimeException("Hasło musi mieć co najmniej 8 znaków!");
         }
@@ -41,20 +58,14 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public boolean checkCredentials(String username, String password) {
-        return userRepository.findByUsername(username)
-                .map(user -> passwordEncoder.matches(password, user.getPassword()))
-                .orElse(false);
-    }
+    // Metoda checkCredentials nie jest już potrzebna przy JWT (AuthenticationManager to robi)
 
-    // Dodawanie wypłaty
     public User addBalance(String username, Double amount) {
         User user = findByUsername(username);
         user.setBalance(user.getBalance() + amount);
         return userRepository.save(user);
     }
 
-    // Odejmowanie przy zakupach
     public void deductBalance(String username, Double amount) {
         User user = findByUsername(username);
         user.setBalance(user.getBalance() - amount);
