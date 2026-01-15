@@ -26,6 +26,7 @@ public class FamilyService {
         User user = userRepository.findByUsername(username).orElseThrow();
         Family family = new Family();
         family.setName(familyName);
+        family.setOwner(user);
         familyRepository.save(family);
 
         user.setFamily(family);
@@ -66,5 +67,57 @@ public class FamilyService {
         return family.getMembers().stream()
                 .map(User::getUsername)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void leaveFamily(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        Family family = user.getFamily();
+        if (family == null) throw new RuntimeException("Nie masz rodziny.");
+
+        if (family.getOwner() != null && family.getOwner().equals(user)) {
+            throw new RuntimeException("Właściciel nie może opuścić rodziny. Musisz ją rozwiązać.");
+        }
+
+        user.setFamily(null);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void removeMember(String ownerName, String memberName) {
+        User owner = userRepository.findByUsername(ownerName).orElseThrow();
+        User member = userRepository.findByUsername(memberName).orElseThrow();
+        Family family = owner.getFamily();
+
+        if (family == null || !family.getOwner().equals(owner)) {
+            throw new RuntimeException("Tylko właściciel może usuwać członków.");
+        }
+        if (!member.getFamily().equals(family)) {
+            throw new RuntimeException("Ten użytkownik nie należy do Twojej rodziny.");
+        }
+        if (owner.equals(member)) {
+            throw new RuntimeException("Nie możesz usunąć samego siebie.");
+        }
+
+        member.setFamily(null);
+        userRepository.save(member);
+    }
+
+    @Transactional
+    public void dissolveFamily(String ownerName) {
+        User owner = userRepository.findByUsername(ownerName).orElseThrow();
+        Family family = owner.getFamily();
+
+        if (family == null || !family.getOwner().equals(owner)) {
+            throw new RuntimeException("Tylko właściciel może rozwiązać rodzinę.");
+        }
+
+        List<User> members = family.getMembers();
+        for (User u : members) {
+            u.setFamily(null);
+            userRepository.save(u);
+        }
+
+        familyRepository.delete(family);
     }
 }

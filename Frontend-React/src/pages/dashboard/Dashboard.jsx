@@ -8,8 +8,7 @@ import FamilyModal from '../family/FamilyModal';
 import EditLimitModal from './EditLimitModal';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { toast } from 'react-toastify';
-import { CATEGORY_ICONS_QB } from '../../utils/constants';
-import { Moon, Sun } from 'lucide-react';
+import { CATEGORY_ICONS_QB, EXCHANGE_RATES } from '../../utils/constants';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -19,7 +18,7 @@ const Dashboard = () => {
     const [familyData, setFamilyData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     
-    const [isDark, setIsDark] = useState(() => {
+    const [isDark] = useState(() => {
         return localStorage.getItem('theme') === 'dark';
     });
 
@@ -38,11 +37,22 @@ const Dashboard = () => {
         'Rozrywka': 300, 'Dom': 600, 'Zdrowie': 200, 'Inne': 150
     };
 
-    // ZMIANA: Stan limits początkowo pusty, pobierany z backendu
     const [limits, setLimits] = useState({});
 
     const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'];
-    const formatCurrency = (amount) => new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(amount);
+
+    const userCurrency = localStorage.getItem('currency') || 'PLN';
+    const rate = EXCHANGE_RATES[userCurrency] || 1.0;
+
+    const formatCurrency = (amountInPLN) => {
+        if (amountInPLN === null || amountInPLN === undefined) return '-';
+        const convertedAmount = amountInPLN / rate;
+        return new Intl.NumberFormat('pl-PL', { 
+            style: 'currency', 
+            currency: userCurrency 
+        }).format(convertedAmount);
+    };
+
     const formatDate = (dateString) => dateString ? new Date(dateString).toLocaleDateString('pl-PL') : '-';
 
     const fetchData = async () => {
@@ -62,15 +72,13 @@ const Dashboard = () => {
         }
     };
 
-    // ZMIANA: Nowa funkcja do pobierania limitów
     const fetchLimits = async () => {
         try {
             const res = await axios.get(`${API_URL}/limits/${userName}`);
-            if (Object.keys(res.data).length === 0) {
-                 setLimits(defaultLimits);
-            } else {
-                 setLimits(res.data);
-            }
+            setLimits(prev => ({
+                ...defaultLimits,
+                ...res.data
+            }));
         } catch (err) {
             console.error("Błąd limitów", err);
             setLimits(defaultLimits);
@@ -79,18 +87,13 @@ const Dashboard = () => {
 
     useEffect(() => { 
         fetchData(); 
-        fetchLimits(); // Wywołanie pobierania limitów
+        fetchLimits();
     }, []);
 
     useEffect(() => {
         const theme = isDark ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
     }, [isDark]);
-
-    const toggleTheme = () => {
-        setIsDark(prev => !prev);
-    };
 
     const filteredTransactions = useMemo(() => {
         return transactions.filter(t => t.date.startsWith(selectedMonth));
@@ -106,24 +109,29 @@ const Dashboard = () => {
     }, [filteredTransactions]);
 
     const chartData = useMemo(() => {
-        return Object.keys(spendingByCategory).map(key => ({ name: key, value: spendingByCategory[key] }));
-    }, [spendingByCategory]);
+        return Object.keys(spendingByCategory).map(key => ({ 
+            name: key, 
+            value: spendingByCategory[key] / rate 
+        }));
+    }, [spendingByCategory, rate]);
 
     const monthlySpent = useMemo(() => filteredTransactions.reduce((acc, t) => acc + t.totalAmount, 0), [filteredTransactions]);
 
     const openEditLimit = (category) => {
-        setEditingCategory({ name: category, limit: limits[category] || 0 });
+        const limitInPLN = limits[category] || 0;
+        setEditingCategory({ name: category, limit: (limitInPLN / rate) });
         setIsEditLimitOpen(true);
     };
 
-    // ZMIANA: Zapis limitu przez API
     const saveLimit = async (category, newLimit) => {
+        const limitInPLN = newLimit * rate;
+        
         try {
             await axios.post(`${API_URL}/limits/${userName}`, {
                 category: category,
-                limit: newLimit
+                limit: limitInPLN
             });
-            setLimits({ ...limits, [category]: newLimit });
+            setLimits(prev => ({ ...prev, [category]: limitInPLN }));
             toast.success(`Zaktualizowano limit dla: ${category}`);
         } catch (e) {
             toast.error("Błąd zapisu limitu");
@@ -143,9 +151,13 @@ const Dashboard = () => {
             toast.warn("Brak danych do eksportu w tym miesiącu.");
             return;
         }
-        const headers = ["Data", "Sklep", "Kategoria", "Kwota (PLN)", "Typ"];
+        const headers = ["Data", "Sklep", "Kategoria", `Kwota (${userCurrency})`, "Typ"];
         const rows = filteredTransactions.map(t => [
-            t.date, `"${t.shopName}"`, t.category, t.totalAmount.toFixed(2), t.isFamilyExpense ? "Rodzinny" : "Osobisty"
+            t.date, 
+            `"${t.shopName}"`, 
+            t.category, 
+            (t.totalAmount / rate).toFixed(2), 
+            t.isFamilyExpense ? "Rodzinny" : "Osobisty"
         ]);
         const csvContent = [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -178,14 +190,10 @@ const Dashboard = () => {
                     <div className="s-link active">📊 Pulpit</div>
                     <div className="s-link" onClick={() => navigate('/transactions')}>💸 Transakcje</div>
                     <div className="s-link" onClick={() => setIsFamilyModalOpen(true)}>👨‍👩‍👧‍👦 Rodzina</div>
+                    <div className="s-link" onClick={() => navigate('/settings')}>⚙️ Ustawienia</div>
                 </nav>
                 <div style={{marginTop: 'auto', paddingBottom: '10px'}}>
                     <button className="s-export" onClick={handleExportCSV}>📥 Eksportuj CSV</button>
-                    <div style={{display:'flex', justifyContent:'center', marginTop: '10px'}}>
-                        <button onClick={toggleTheme} className="theme-toggle" style={{background:'transparent', border:'none', cursor:'pointer', color:'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '5px'}}>
-                            {isDark ? <Sun size={20} /> : <Moon size={20} />} <span>Tryb {isDark ? 'jasny' : 'ciemny'}</span>
-                        </button>
-                    </div>
                 </div>
                 <button className="s-logout" onClick={handleLogout}>Wyloguj</button>
             </aside>
@@ -222,8 +230,8 @@ const Dashboard = () => {
                         <section className="chart-section">
                             <h3>Struktura wydatków ({selectedMonth})</h3>
                             {chartData.length > 0 ? (
-                                <div style={{width:'100%', height: 300}}>
-                                    <ResponsiveContainer>
+                                <div style={{width:'100%', height: 300, minHeight: '300px'}}>
+                                    <ResponsiveContainer width="100%" height="100%">
                                         <PieChart>
                                             <Pie 
                                                 data={chartData} 
@@ -236,7 +244,7 @@ const Dashboard = () => {
                                             >
                                                 {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                             </Pie>
-                                            <Tooltip formatter={(value) => formatCurrency(value)} />
+                                            <Tooltip formatter={(value) => new Intl.NumberFormat('pl-PL', { style: 'currency', currency: userCurrency }).format(value)} />
                                             <Legend />
                                         </PieChart>
                                     </ResponsiveContainer>

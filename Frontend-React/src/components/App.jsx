@@ -4,6 +4,7 @@ import LoginPage from '../pages/login/LoginPage';
 import Dashboard from '../pages/dashboard/Dashboard';
 import TransactionsPage from '../pages/transactions/TransactionsPage';
 import RegisterPage from '../pages/register/RegisterPage';
+import SettingsPage from '../pages/settings/SettingsPage'; // <--- IMPORT
 import ProtectedRoute from './ProtectedRoute';
 
 function App() {
@@ -31,6 +32,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TransactionsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/settings" // <--- NOWA TRASA
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
             </ProtectedRoute>
           } 
         />

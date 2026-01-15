@@ -65,7 +65,19 @@ public class UserController {
         User user = userService.findByUsername(username);
         HashMap<String, Object> response = new HashMap<>();
         response.put("balance", user.getBalance());
-        response.put("family", user.getFamily());
+
+        if (user.getFamily() != null) {
+            Map<String, Object> fam = new HashMap<>();
+            fam.put("id", user.getFamily().getId());
+            fam.put("name", user.getFamily().getName());
+            fam.put("familyBalance", user.getFamily().getFamilyBalance());
+            fam.put("joinCode", user.getFamily().getJoinCode());
+            fam.put("ownerName", user.getFamily().getOwnerName()); // Dodano właściciela
+            response.put("family", fam);
+        } else {
+            response.put("family", null);
+        }
+
         return ResponseEntity.ok(response);
     }
 
@@ -75,5 +87,20 @@ public class UserController {
         Double amount = Double.valueOf(payload.get("amount").toString());
         User updated = userService.addBalance(username, amount);
         return ResponseEntity.ok(Map.of("newBalance", updated.getBalance()));
+    }
+
+    @PutMapping("/user/update")
+    public ResponseEntity<?> updateUser(@RequestBody Map<String, String> payload) {
+        String currentUsername = payload.get("currentUsername");
+        String newUsername = payload.get("newUsername");
+        String newPassword = payload.get("newPassword");
+        String oldPassword = payload.get("oldPassword"); // Nowe pole
+
+        userService.updateUser(currentUsername, newUsername, newPassword, oldPassword);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Dane zaktualizowane",
+                "newUsername", newUsername != null ? newUsername : currentUsername
+        ));
     }
 }

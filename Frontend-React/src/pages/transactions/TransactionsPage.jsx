@@ -2,9 +2,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../config';
-import { CATEGORY_ICONS_QB } from '../../utils/constants'; 
+import { CATEGORY_ICONS_QB, EXCHANGE_RATES } from '../../utils/constants'; 
 import './Transactions.css';
 import { toast } from 'react-toastify';
+import { Edit2 } from 'lucide-react';
+import AddReceiptModal from '../addReceipts/AddReceiptModal';
 
 const Transactions = () => {
     const [receipts, setReceipts] = useState([]);
@@ -14,6 +16,10 @@ const Transactions = () => {
     const [filterType, setFilterType] = useState('all'); 
     const navigate = useNavigate();
     const userName = localStorage.getItem('username');
+
+    // State dla edycji
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [receiptToEdit, setReceiptToEdit] = useState(null);
 
     const fetchReceipts = async () => {
         setIsLoading(true);
@@ -42,9 +48,25 @@ const Transactions = () => {
         }
     };
 
+    const handleEdit = (receipt) => {
+        setReceiptToEdit(receipt);
+        setIsEditModalOpen(true);
+    };
+
     const toggleDetails = (id) => setExpandedId(expandedId === id ? null : id);
 
-    const formatCurrency = (amount) => new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(amount);
+    const userCurrency = localStorage.getItem('currency') || 'PLN';
+    const rate = EXCHANGE_RATES[userCurrency] || 1.0;
+
+    const formatCurrency = (amountInPLN) => {
+        if (amountInPLN === null || amountInPLN === undefined) return '-';
+        const convertedAmount = amountInPLN / rate;
+        return new Intl.NumberFormat('pl-PL', { 
+            style: 'currency', 
+            currency: userCurrency 
+        }).format(convertedAmount);
+    };
+
     const formatDate = (d) => d ? new Date(d).toLocaleDateString('pl-PL') : '-';
 
     const filteredReceipts = useMemo(() => {
@@ -66,6 +88,7 @@ const Transactions = () => {
                 <nav className="sidebar-links">
                     <div className="s-link" onClick={() => navigate('/dashboard')}>📊 Pulpit</div>
                     <div className="s-link active">💸 Transakcje</div>
+                    <div className="s-link" onClick={() => navigate('/settings')}>⚙️ Ustawienia</div>
                 </nav>
             </aside>
 
@@ -123,6 +146,11 @@ const Transactions = () => {
 
                                                 <div className="t-actions-group">
                                                     <strong className="amount-negative">-{formatCurrency(r.totalAmount)}</strong>
+                                                    
+                                                    <button onClick={() => handleEdit(r)} className="btn-delete-small" style={{color:'var(--primary)', borderColor:'var(--primary-light)', background:'var(--primary-light)', marginRight:'5px'}}>
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                    
                                                     <button onClick={() => handleDelete(r.id)} className="btn-delete-small">🗑️</button>
                                                 </div>
                                             </div>
@@ -150,6 +178,15 @@ const Transactions = () => {
                     )}
                 </div>
             </main>
+
+            {isEditModalOpen && (
+                <AddReceiptModal 
+                    isOpen={isEditModalOpen} 
+                    onClose={() => { setIsEditModalOpen(false); setReceiptToEdit(null); }} 
+                    onRefresh={fetchReceipts}
+                    initialData={receiptToEdit}
+                />
+            )}
         </div>
     );
 };

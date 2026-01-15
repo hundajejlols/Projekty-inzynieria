@@ -19,3 +19,10 @@ export const CATEGORY_ICONS_QB = {
     'Zdrowie': HeartPulse,
     'Inne': Package
 };
+
+// --- NOWE: KURSY WALUT (BAZA: PLN) ---
+export const EXCHANGE_RATES = {
+    'PLN': 1.0,
+    'EUR': 4.30, // 1 EUR = 4.30 PLN
+    'USD': 4.00  // 1 USD = 4.00 PLN
+};

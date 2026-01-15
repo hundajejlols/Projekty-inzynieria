@@ -16,15 +16,14 @@ public class Receipt {
     private LocalDate date;
     private String category;
 
-    // --- NOWE POLA WYMAGANE DO DZIAŁANIA RODZINY ---
     private boolean isFamilyExpense = false;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user; // Relacja do użytkownika
-    // -----------------------------------------------
+    private User user;
 
-    @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    // WAŻNE: orphanRemoval = true pozwala na usuwanie sierot (produktów bez paragonu)
+    @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonManagedReference
     private List<ReceiptItem> items;
 
@@ -41,11 +40,8 @@ public class Receipt {
     public void setCategory(String category) { this.category = category; }
     public List<ReceiptItem> getItems() { return items; }
     public void setItems(List<ReceiptItem> items) { this.items = items; }
-
-    // Gettery i Settery dla nowych pól
     public boolean getIsFamilyExpense() { return isFamilyExpense; }
     public void setIsFamilyExpense(boolean familyExpense) { isFamilyExpense = familyExpense; }
-
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 }

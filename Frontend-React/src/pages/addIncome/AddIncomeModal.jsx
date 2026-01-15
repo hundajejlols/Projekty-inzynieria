@@ -2,37 +2,50 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../config';
 import { toast } from 'react-toastify';
+import { EXCHANGE_RATES } from '../../utils/constants';
 import './AddIncome.css';
 
 const AddIncomeModal = ({ isOpen, onClose, onRefresh }) => {
     const [amount, setAmount] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // 1. Pobieramy walutę
+    const userCurrency = localStorage.getItem('currency') || 'PLN';
+    const rate = EXCHANGE_RATES[userCurrency] || 1.0;
+
     if (!isOpen) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const userName = localStorage.getItem('username');
-        const value = parseFloat(amount.replace(',', '.'));
+        const inputVal = parseFloat(amount.replace(',', '.'));
 
         if (!userName) {
             toast.error("Błąd autoryzacji!");
             return;
         }
 
-        if (isNaN(value) || value <= 0) {
-            toast.warning("Podaj poprawną kwotę (większą od 0).");
+        if (isNaN(inputVal) || inputVal <= 0) {
+            toast.warning("Podaj poprawną kwotę.");
             return;
         }
+
+        // 2. Przeliczamy na bazowe PLN
+        const valueInPLN = inputVal * rate;
 
         setLoading(true);
         try {
             await axios.post(`${API_URL}/user/add-balance`, {
                 username: userName,
-                amount: value
+                amount: valueInPLN // Wysyłamy PLN
             });
             
-            toast.success(`💰 Dodano ${value.toFixed(2)} PLN do salda!`);
+            if (userCurrency !== 'PLN') {
+                toast.success(`💰 Dodano ${inputVal} ${userCurrency} (zapisano jako ${valueInPLN.toFixed(2)} PLN)!`);
+            } else {
+                toast.success(`💰 Dodano ${inputVal.toFixed(2)} PLN do salda!`);
+            }
+            
             onRefresh();
             setAmount('');
             onClose();
@@ -48,12 +61,14 @@ const AddIncomeModal = ({ isOpen, onClose, onRefresh }) => {
         <div className="modal-overlay income-overlay">
             <div className="modal-content income-content">
                 <div className="modal-header">
-                    <h3>Dodaj Wpłatę</h3>
+                    {/* Dynamiczny nagłówek */}
+                    <h3>Dodaj Wpłatę ({userCurrency})</h3>
                     <p className="modal-subtitle">Zasil swój domowy budżet</p>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="income-input-wrapper">
-                        <span className="currency-prefix">PLN</span>
+                        {/* Dynamiczny prefiks waluty */}
+                        <span className="currency-prefix">{userCurrency}</span>
                         <input 
                             type="number" 
                             step="0.01" 

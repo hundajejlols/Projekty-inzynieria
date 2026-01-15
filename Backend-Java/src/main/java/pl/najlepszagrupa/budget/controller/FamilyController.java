@@ -44,4 +44,22 @@ public class FamilyController {
         List<String> members = familyService.getFamilyMembers(username);
         return ResponseEntity.ok(members);
     }
+
+    @PostMapping("/leave")
+    public ResponseEntity<?> leave(@RequestBody Map<String, String> payload) {
+        familyService.leaveFamily(payload.get("username"));
+        return ResponseEntity.ok(Map.of("message", "Opuszczono rodzinę"));
+    }
+
+    @PostMapping("/remove")
+    public ResponseEntity<?> removeMember(@RequestBody Map<String, String> payload) {
+        familyService.removeMember(payload.get("ownerName"), payload.get("memberName"));
+        return ResponseEntity.ok(Map.of("message", "Użytkownik usunięty"));
+    }
+
+    @PostMapping("/dissolve")
+    public ResponseEntity<?> dissolve(@RequestBody Map<String, String> payload) {
+        familyService.dissolveFamily(payload.get("username"));
+        return ResponseEntity.ok(Map.of("message", "Rodzina rozwiązana"));
+    }
 }

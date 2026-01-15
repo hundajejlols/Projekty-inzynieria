@@ -15,12 +15,16 @@ public class Family {
     private Double familyBalance = 0.0;
     private String joinCode;
 
+    @OneToOne
+    @JoinColumn(name = "owner_id")
+    @JsonIgnore
+    private User owner;
+
     @OneToMany(mappedBy = "family", fetch = FetchType.EAGER)
-    @JsonIgnore // Zapobiega pętli w JSON
+    @JsonIgnore
     private List<User> members;
 
     public Family() {
-        // Generuje losowy kod np. "A1B2-C3D4"
         this.joinCode = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
@@ -35,4 +39,11 @@ public class Family {
     public void setJoinCode(String joinCode) { this.joinCode = joinCode; }
     public List<User> getMembers() { return members; }
     public void setMembers(List<User> members) { this.members = members; }
+
+    public User getOwner() { return owner; }
+    public void setOwner(User owner) { this.owner = owner; }
+
+    public String getOwnerName() {
+        return owner != null ? owner.getUsername() : "";
+    }
 }

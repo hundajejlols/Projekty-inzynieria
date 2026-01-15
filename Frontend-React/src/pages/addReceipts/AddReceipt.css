@@ -2,8 +2,8 @@
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.7); /* Ciemniejsze tło */
+    backdrop-filter: blur(5px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,53 +14,51 @@
 .modal-content {
     background: var(--bg-card);
     padding: 2rem;
-    border-radius: 16px;
-    width: 100%;
+    border-radius: 20px; /* Większe zaokrąglenie */
+    width: 90%;
     max-width: 500px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     animation: scaleIn 0.2s ease-out;
     border: 1px solid var(--border-color);
     color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    margin-bottom: 1.5rem;
 }
 
 .modal-header h3 {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     color: var(--text-main);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.2rem;
     font-weight: 700;
 }
 .modal-subtitle {
     color: var(--text-secondary);
-    margin-bottom: 1.5rem;
     font-size: 0.9rem;
 }
 
 .field-auth label {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-main);
-    margin-bottom: 0.4rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
     display: block;
-}
-
-/* WAŻNE DLA DARK MODE */
-.field-auth select option {
-    background-color: var(--bg-card);
-    color: var(--text-main);
 }
 
 .field-auth input, 
 .field-auth select {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.8rem;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 0.95rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem;
     background: var(--bg-body);
     color: var(--text-main);
+    transition: all 0.2s;
 }
 
 .field-auth input:focus, select:focus {
@@ -72,41 +70,54 @@
 .items-section {
     background: var(--bg-body);
     padding: 1rem;
-    border-radius: 8px;
-    margin: 1rem 0;
+    border-radius: 12px;
+    margin: 0 0 1.5rem 0;
     border: 1px solid var(--border-color);
 }
 
 .items-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.8rem;
+    margin-bottom: 1rem;
     font-weight: 600;
     color: var(--text-main);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    align-items: center;
 }
 
-.item-row { display: flex; gap: 10px; margin-bottom: 8px; }
-.item-row input { margin-bottom: 0; background: var(--bg-card); color: var(--text-main); }
+.item-row { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 10px; 
+}
+.item-row input { 
+    margin-bottom: 0; 
+    background: var(--bg-card); 
+    color: var(--text-main); 
+    padding: 0.6rem;
+}
 
 .btn-add-item {
     width: 100%;
-    padding: 0.6rem;
-    background: var(--bg-card);
-    border: 1px dashed var(--primary);
+    padding: 0.7rem;
+    background: transparent;
+    border: 2px dashed var(--border-color);
     color: var(--primary);
-    border-radius: 6px;
+    border-radius: 10px;
     font-weight: 600;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     transition: 0.2s;
 }
-.btn-add-item:hover { background: var(--primary-light); }
+.btn-add-item:hover { 
+    border-color: var(--primary);
+    background: var(--primary-light); 
+}
 
 .modal-footer {
     display: flex;
     gap: 12px;
-    margin-top: 1.5rem;
+    margin-top: auto;
 }
 
 .btn-save {
@@ -114,8 +125,8 @@
     background-color: var(--primary);
     color: white;
     border: none;
-    padding: 0.85rem;
-    border-radius: 8px;
+    padding: 0.9rem;
+    border-radius: 10px;
     font-weight: 600;
     cursor: pointer;
     font-size: 1rem;
@@ -125,11 +136,11 @@
 
 .btn-cancel {
     flex: 1;
-    background: var(--bg-card);
+    background: transparent;
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
-    padding: 0.85rem;
-    border-radius: 8px;
+    padding: 0.9rem;
+    border-radius: 10px;
     font-weight: 600;
     cursor: pointer;
     transition: 0.2s;

@@ -15,7 +15,6 @@ public class ReceiptController {
     @Autowired
     private ReceiptService receiptService;
 
-    // ZMIANA: Dodano /{username} do ścieżki
     @GetMapping("/{username}")
     public List<Receipt> getUserReceipts(@PathVariable String username) {
         return receiptService.getReceiptsForUser(username);
@@ -24,6 +23,11 @@ public class ReceiptController {
     @PostMapping("/{username}")
     public Receipt addReceipt(@RequestBody Receipt receipt, @PathVariable String username) {
         return receiptService.saveReceipt(receipt, username);
+    }
+
+    @PutMapping("/{id}")
+    public Receipt updateReceipt(@PathVariable Long id, @RequestBody Receipt receipt) {
+        return receiptService.updateReceipt(id, receipt);
     }
 
     @DeleteMapping("/{id}")

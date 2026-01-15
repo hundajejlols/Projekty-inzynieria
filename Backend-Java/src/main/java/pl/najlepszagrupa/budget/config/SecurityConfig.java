@@ -34,7 +34,9 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/register", "/api/login").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll() // <--- WAŻNE: Reset hasła
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(f -> f.sameOrigin()))
@@ -47,8 +49,6 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
-    // USUNIĘTO BEAN passwordEncoder() - jest teraz w AppConfig.java
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
