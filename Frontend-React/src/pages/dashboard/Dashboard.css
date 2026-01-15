@@ -1,11 +1,10 @@
-/* GŁÓWNY UKŁAD */
 .dashboard-wrapper {
     display: flex;
     min-height: 100vh;
     background-color: var(--bg-body);
+    transition: background-color 0.3s;
 }
 
-/* SIDEBAR - Klasyczny biały pasek */
 .sidebar-container {
     width: 260px;
     background: var(--bg-card);
@@ -16,12 +15,13 @@
     position: sticky;
     top: 0;
     height: 100vh;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .sidebar-header {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--secondary);
+    color: var(--text-main);
     margin-bottom: 2.5rem;
     display: flex;
     align-items: center;
@@ -73,9 +73,8 @@
 }
 
 .s-export:hover { border-color: var(--primary); color: var(--primary); }
-.s-logout:hover { border-color: var(--danger); color: var(--danger); background: #fff1f2; }
+.s-logout:hover { border-color: var(--danger); color: var(--danger); background: var(--bg-body); }
 
-/* MAIN CONTENT */
 .dashboard-main {
     flex: 1;
     padding: 2rem 3rem;
@@ -91,7 +90,7 @@
 
 .dash-header h1 {
     font-size: 1.8rem;
-    color: var(--secondary);
+    color: var(--text-main);
     font-weight: 700;
 }
 
@@ -99,18 +98,16 @@
     color: var(--text-secondary);
 }
 
-/* INPUT DATY */
 .modern-date-input {
     padding: 0.6rem 1rem;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     color: var(--text-main);
-    background: white;
+    background: var(--bg-card);
     font-weight: 500;
     cursor: pointer;
 }
 
-/* KARTY STATYSTYK */
 .stat-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -119,12 +116,12 @@
 }
 
 .stat-card {
-    background: white;
+    background: var(--bg-card);
     padding: 1.5rem;
     border-radius: 12px;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
-    transition: transform 0.2s;
+    transition: transform 0.2s, background-color 0.3s;
 }
 
 .stat-card:hover {
@@ -151,7 +148,6 @@
 .balance-positive { color: var(--accent); }
 .balance-negative { color: var(--danger); }
 
-/* GRID GŁÓWNY */
 .dash-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -159,21 +155,21 @@
 }
 
 .chart-section, .recent-activity, .quick-tools {
-    background: white;
+    background: var(--bg-card);
     padding: 1.5rem;
     border-radius: 12px;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s;
 }
 
 .chart-section h3, .recent-activity h3, .quick-tools h3 {
     font-size: 1.1rem;
-    color: var(--secondary);
+    color: var(--text-main);
     margin-bottom: 1.5rem;
     font-weight: 600;
 }
 
-/* LISTA TRANSAKCJI */
 .t-list {
     display: flex;
     flex-direction: column;
@@ -197,7 +193,6 @@
     font-weight: 600; cursor: pointer; font-size: 0.85rem;
 }
 
-/* PRZYCISKI AKCJI */
 .quick-tools { gap: 1rem; display: flex; flex-direction: column; }
 
 .btn-add, .btn-income {
@@ -212,41 +207,36 @@
     text-align: center;
 }
 
-.btn-add { background-color: var(--secondary); color: white; }
-.btn-add:hover { background-color: #1e293b; }
+.btn-add { background-color: var(--text-main); color: var(--bg-card); }
+.btn-add:hover { opacity: 0.9; }
 
 .btn-income { background-color: var(--primary); color: white; }
 .btn-income:hover { background-color: var(--primary-hover); }
 
-/* --- ZMIENIONA SEKCJA PASKÓW BUDŻETU (Zwijana) --- */
-
 .budget-limits-section {
-    background: white;
+    background: var(--bg-card);
     padding: 1.5rem;
     border-radius: 12px;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
-    /* Animacja cienia dla interaktywności nagłówka */
-    transition: box-shadow 0.2s;
+    transition: box-shadow 0.2s, background-color 0.3s;
 }
 
-/* Efekt najechania na całą sekcję (sugeruje interakcję z nagłówkiem) */
 .budget-limits-section:hover {
     box-shadow: var(--shadow-md);
 }
 
 .budget-limits-section h3 {
     font-size: 1.1rem;
-    color: var(--secondary);
+    color: var(--text-main);
     font-weight: 600;
-    margin: 0; /* Margines kontrolowany przez flex w JSX */
+    margin: 0; 
 }
 
 .limits-list {
     display: flex;
     flex-direction: column;
     gap: 1.2rem;
-    /* Animacja pojawiania się przy rozwijaniu */
     animation: fadeIn 0.3s ease-out;
 }
 
@@ -268,13 +258,12 @@
     color: var(--text-main);
 }
 
-/* Guzik edycji z kwotą - Styl "Badge" / "Pill" */
 .limit-values { 
     font-size: 0.8rem; 
     color: var(--text-secondary); 
-    background: #f1f5f9; 
+    background: var(--bg-body);
     padding: 4px 12px; 
-    border-radius: 20px; /* Bardziej zaokrąglone (pill shape) */
+    border-radius: 20px; 
     border: 1px solid transparent;
     cursor: pointer; 
     transition: all 0.2s;
@@ -290,15 +279,14 @@
     background: var(--primary-light);
 }
 
-/* Pasek postępu */
 .progress-bar-bg {
     width: 100%;
     height: 12px; 
-    background-color: #f1f5f9;
+    background-color: var(--bg-body);
     border-radius: 6px;
     overflow: hidden;
     position: relative;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
 }
 
 .progress-bar-fill {
@@ -307,7 +295,6 @@
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Animacja rozwijania */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }

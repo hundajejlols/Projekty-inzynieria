@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../config';
 import { toast } from 'react-toastify';
-import { CATEGORIES } from '../../utils/constants'; // Import kategorii
+import { CATEGORIES } from '../../utils/constants';
 import './AddReceipt.css';
 
 const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
     const [shopName, setShopName] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [category, setCategory] = useState(CATEGORIES[0]); // Domyślna kategoria z stałych
+    const [category, setCategory] = useState(CATEGORIES[0]);
     const [items, setItems] = useState([{ productName: '', price: 0 }]);
     const [isFamilyExpense, setIsFamilyExpense] = useState(false);
 
@@ -41,7 +41,6 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
             toast.success("🧾 Paragon dodany pomyślnie!");
             onRefresh();
             
-            // Reset formularza
             setShopName('');
             setCategory(CATEGORIES[0]);
             setItems([{ productName: '', price: 0 }]);
@@ -62,9 +61,8 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
                     <p className="modal-subtitle">Uzupełnij szczegóły wydatku</p>
                 </div>
                 <form onSubmit={handleSubmit}>
-                    {/* CHECKBOX RODZINNY */}
-                    <div style={{marginBottom:'20px', padding:'10px', background:'#f0fdf4', borderRadius:'10px', border:'1px solid #bbf7d0'}}>
-                        <label style={{display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', fontWeight:'bold', color:'#166534'}}>
+                    <div style={{marginBottom:'20px', padding:'10px', background: isFamilyExpense ? '#dcfce7' : 'var(--bg-body)', borderRadius:'10px', border:'1px solid var(--border-color)'}}>
+                        <label style={{display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', fontWeight:'bold', color: isFamilyExpense ? '#166534' : 'var(--text-main)'}}>
                             <input 
                                 type="checkbox" 
                                 checked={isFamilyExpense} 
@@ -101,9 +99,7 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh }) => {
                             <select 
                                 value={category} 
                                 onChange={(e) => setCategory(e.target.value)}
-                                style={{width:'100%', padding:'0.8rem', borderRadius:'12px', border:'1px solid #e2e8f0', background:'white'}}
                             >
-                                {/* Generowanie opcji z pliku constants.js */}
                                 {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                             </select>
                         </div>

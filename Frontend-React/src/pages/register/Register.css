@@ -1,122 +1,30 @@
-/* Dziedziczymy styl z Login.css dla spójności, ale dodajemy specyficzne klasy */
+/* Teraz ten plik może być prawie pusty, ponieważ korzystamy z klas z Login.css, 
+   ale dla pewności definiujemy zmienne tła, jeśli jakieś specyficzne style zostały użyte */
+
 .register-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+    background-color: var(--bg-body); /* Użycie zmiennej */
     position: relative;
     overflow: hidden;
 }
 
-/* Tło dekoracyjne */
-.register-container::before {
-    content: '';
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(0,0,0,0) 70%);
-    top: -200px;
-    right: -200px;
-}
+/* Jeśli chcesz zachować ten ozdobny "aurora background" w rejestracji,
+   musisz go dostosować do dark mode lub usunąć. 
+   Dla spójności z logowaniem zalecam usunięcie lub uproszczenie. */
 
+/* Poniższe style są opcjonalne, jeśli używasz klas z Login.css w RegisterPage.jsx */
 .register-card {
-    background: #ffffff;
-    padding: 3.5rem;
-    border-radius: 28px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    width: 100%;
-    max-width: 500px;
-    position: relative;
-    z-index: 10;
-    animation: fadeInScale 0.4s ease-out;
-}
-
-.register-header {
-    text-align: center;
-    margin-bottom: 2.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
 }
 
 .register-header h2 {
-    font-size: 2.2rem;
-    color: #1e293b;
-    margin-bottom: 0.5rem;
-    font-weight: 800;
+    color: var(--text-main);
 }
 
 .register-header p {
-    color: #64748b;
-}
-
-.field label {
-    font-weight: 600;
-    color: #334155;
-    margin-bottom: 0.5rem;
-    display: block;
-}
-
-.field input {
-    width: 100%;
-    padding: 1rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 14px;
-    font-size: 1rem;
-    transition: all 0.2s;
-    background: #f8fafc;
-}
-
-.field input:focus {
-    border-color: #2563eb;
-    background: white;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-    outline: none;
-}
-
-.register-btn {
-    width: 100%;
-    margin-top: 2rem;
-    padding: 1.2rem;
-    background: #10b981; /* Zielony dla rejestracji */
-    color: white;
-    border: none;
-    border-radius: 14px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.register-btn:hover {
-    background: #059669;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-}
-
-.register-btn:disabled {
-    background: #cbd5e1;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-.login-link {
-    text-align: center;
-    margin-top: 2rem;
-    color: #64748b;
-}
-
-.login-link a {
-    color: #2563eb;
-    font-weight: 700;
-    text-decoration: none;
-}
-
-.login-link a:hover {
-    text-decoration: underline;
-}
-
-@keyframes fadeInScale {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    color: var(--text-secondary);
 }

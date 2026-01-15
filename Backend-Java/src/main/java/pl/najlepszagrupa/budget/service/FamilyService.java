@@ -7,6 +7,10 @@ import pl.najlepszagrupa.budget.model.User;
 import pl.najlepszagrupa.budget.repository.FamilyRepository;
 import pl.najlepszagrupa.budget.repository.UserRepository;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class FamilyService {
 
@@ -52,5 +56,15 @@ public class FamilyService {
 
         userRepository.save(user);
         familyRepository.save(family);
+    }
+
+    public List<String> getFamilyMembers(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        Family family = user.getFamily();
+        if (family == null) return Collections.emptyList();
+
+        return family.getMembers().stream()
+                .map(User::getUsername)
+                .collect(Collectors.toList());
     }
 }

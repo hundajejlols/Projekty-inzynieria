@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../../config';
+import { toast } from 'react-toastify';
+import '../login/Login.css';
 import './Register.css';
 
 const RegisterPage = () => {
@@ -11,7 +13,6 @@ const RegisterPage = () => {
         password: '',
         confirmPassword: ''
     });
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -21,12 +22,10 @@ const RegisterPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-
         if (userData.password !== userData.confirmPassword) {
-            return setError('Hasła nie są identyczne');
+            toast.warn('Hasła nie są identyczne');
+            return;
         }
-
         setLoading(true);
         try {
             await axios.post(`${API_URL}/register`, {
@@ -34,85 +33,47 @@ const RegisterPage = () => {
                 email: userData.email,
                 password: userData.password
             });
-            
-            navigate('/login', { state: { message: 'Konto utworzone! Zaloguj się.' } });
+            toast.success('Konto utworzone! Zaloguj się.');
+            navigate('/login');
         } catch (err) {
-            setError(err.response?.data?.message || 'Błąd rejestracji. Spróbuj inny login/email.');
+            toast.error(err.response?.data?.message || 'Błąd rejestracji.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="register-container">
-            <div className="register-card">
-                <div className="register-header">
-                    <div style={{fontSize: '3rem', marginBottom: '10px'}}>🚀</div>
-                    <h2>Stwórz konto</h2>
-                    <p>Rozpocznij swoją finansową podróż</p>
+        <div className="login-wrapper">
+            <div className="login-card" style={{ maxWidth: '450px' }}>
+                <div className="login-header">
+                    <div className="logo-icon">💰</div>
+                    <h1>Stwórz konto</h1>
+                    <p>Dołącz do BudżetDomowy</p>
                 </div>
-
-                {error && (
-                    <div className="error-alert" style={{background: '#fee2e2', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center'}}>
-                        {error}
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>Nazwa użytkownika</label>
+                        <input name="username" type="text" placeholder="Login" required onChange={handleChange} />
                     </div>
-                )}
-
-                <form className="register-form" onSubmit={handleSubmit}>
-                    <div className="input-group" style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
-                        <div className="field">
-                            <label>Nazwa użytkownika</label>
-                            <input 
-                                name="username" 
-                                type="text" 
-                                placeholder="Twój unikalny login" 
-                                required 
-                                onChange={handleChange} 
-                            />
-                        </div>
-
-                        <div className="field">
-                            <label>Adres Email</label>
-                            <input 
-                                name="email" 
-                                type="email" 
-                                placeholder="przyklad@email.com" 
-                                required 
-                                onChange={handleChange} 
-                            />
-                        </div>
-
-                        <div className="field">
-                            <label>Hasło</label>
-                            <input 
-                                name="password" 
-                                type="password" 
-                                placeholder="Minimum 8 znaków" 
-                                required 
-                                onChange={handleChange} 
-                            />
-                        </div>
-
-                        <div className="field">
-                            <label>Powtórz hasło</label>
-                            <input 
-                                name="confirmPassword" 
-                                type="password" 
-                                placeholder="Potwierdź hasło" 
-                                required 
-                                onChange={handleChange} 
-                            />
-                        </div>
+                    <div className="form-group">
+                        <label>Email</label>
+                        <input name="email" type="email" placeholder="Email" required onChange={handleChange} />
                     </div>
-
-                    <button type="submit" className="register-btn" disabled={loading}>
-                        {loading ? 'Tworzenie konta...' : 'Zarejestruj się za darmo'}
+                    <div className="form-group">
+                        <label>Hasło (min. 8 znaków)</label>
+                        <input name="password" type="password" placeholder="••••••••" required onChange={handleChange} />
+                    </div>
+                    <div className="form-group">
+                        <label>Powtórz hasło</label>
+                        <input name="confirmPassword" type="password" placeholder="••••••••" required onChange={handleChange} />
+                    </div>
+                    <button type="submit" className="btn-primary" disabled={loading}>
+                        {loading ? 'Tworzenie konta...' : 'Zarejestruj się'}
                     </button>
-
-                    <div className="login-link">
-                        Masz już konto? <Link to="/login">Zaloguj się</Link>
-                    </div>
                 </form>
+                <div className="login-footer">
+                    Masz już konto? <span onClick={() => navigate('/login')}>Zaloguj się</span>
+                </div>
             </div>
         </div>
     );

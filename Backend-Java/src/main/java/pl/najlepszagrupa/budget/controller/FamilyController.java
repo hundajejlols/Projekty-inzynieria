@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.najlepszagrupa.budget.model.Family;
 import pl.najlepszagrupa.budget.service.FamilyService;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,7 +27,6 @@ public class FamilyController {
 
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody Map<String, String> payload) {
-        // Błędy np. "Zły kod" polecą do GlobalExceptionHandler
         Family f = familyService.joinFamily(payload.get("username"), payload.get("code"));
         return ResponseEntity.ok(f);
     }
@@ -37,5 +37,11 @@ public class FamilyController {
         Double amount = Double.valueOf(payload.get("amount").toString());
         familyService.transferToFamily(username, amount);
         return ResponseEntity.ok(Map.of("message", "Przelano środki"));
+    }
+
+    @GetMapping("/members/{username}")
+    public ResponseEntity<?> getMembers(@PathVariable String username) {
+        List<String> members = familyService.getFamilyMembers(username);
+        return ResponseEntity.ok(members);
     }
 }

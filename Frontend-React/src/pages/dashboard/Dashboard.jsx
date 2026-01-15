@@ -5,9 +5,11 @@ import { API_URL } from '../../config';
 import AddReceiptModal from '../addReceipts/AddReceiptModal';
 import AddIncomeModal from '../addIncome/AddIncomeModal';
 import FamilyModal from '../family/FamilyModal';
-import EditLimitModal from './EditLimitModal'; // <--- NOWY IMPORT
+import EditLimitModal from './EditLimitModal';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { toast } from 'react-toastify';
+import { CATEGORY_ICONS_QB } from '../../utils/constants';
+import { Moon, Sun } from 'lucide-react';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -17,12 +19,13 @@ const Dashboard = () => {
     const [familyData, setFamilyData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     
-    // Modale
+    const [isDark, setIsDark] = useState(() => {
+        return localStorage.getItem('theme') === 'dark';
+    });
+
     const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
     const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
     const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
-    
-    // NOWE STANY: Edycja limitu i Zwijanie sekcji
     const [isEditLimitOpen, setIsEditLimitOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState({ name: '', limit: 0 });
     const [isBudgetExpanded, setIsBudgetExpanded] = useState(true); 
@@ -63,6 +66,16 @@ const Dashboard = () => {
 
     useEffect(() => { fetchData(); }, []);
 
+    useEffect(() => {
+        const theme = isDark ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }, [isDark]);
+
+    const toggleTheme = () => {
+        setIsDark(prev => !prev);
+    };
+
     const filteredTransactions = useMemo(() => {
         return transactions.filter(t => t.date.startsWith(selectedMonth));
     }, [transactions, selectedMonth]);
@@ -82,13 +95,11 @@ const Dashboard = () => {
 
     const monthlySpent = useMemo(() => filteredTransactions.reduce((acc, t) => acc + t.totalAmount, 0), [filteredTransactions]);
 
-    // Otwieranie nowego modala
     const openEditLimit = (category) => {
         setEditingCategory({ name: category, limit: limits[category] });
         setIsEditLimitOpen(true);
     };
 
-    // Zapisywanie limitu (wywoływane przez modal)
     const saveLimit = (category, newLimit) => {
         const updatedLimits = { ...limits, [category]: newLimit };
         setLimits(updatedLimits);
@@ -146,6 +157,11 @@ const Dashboard = () => {
                 </nav>
                 <div style={{marginTop: 'auto', paddingBottom: '10px'}}>
                     <button className="s-export" onClick={handleExportCSV}>📥 Eksportuj CSV</button>
+                    <div style={{display:'flex', justifyContent:'center', marginTop: '10px'}}>
+                        <button onClick={toggleTheme} className="theme-toggle" style={{background:'transparent', border:'none', cursor:'pointer', color:'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '5px'}}>
+                            {isDark ? <Sun size={20} /> : <Moon size={20} />} <span>Tryb {isDark ? 'jasny' : 'ciemny'}</span>
+                        </button>
+                    </div>
                 </div>
                 <button className="s-logout" onClick={handleLogout}>Wyloguj</button>
             </aside>
@@ -168,12 +184,12 @@ const Dashboard = () => {
                     </div>
                     <div className="stat-card">
                         <span>Wydatki ({selectedMonth})</span>
-                        <h3 style={{color: '#ef4444'}}>{formatCurrency(monthlySpent)}</h3>
+                        <h3 style={{color: 'var(--danger)'}}>{formatCurrency(monthlySpent)}</h3>
                     </div>
-                    <div className="stat-card" style={{borderColor: familyData ? '#2563eb' : '#e2e8f0'}}>
+                    <div className="stat-card" style={{borderColor: familyData ? 'var(--primary)' : 'var(--border-color)'}}>
                         <span>Budżet Rodzinny</span>
-                        {familyData ? <h3 style={{color: '#2563eb'}}>{formatCurrency(familyData.familyBalance)}</h3> 
-                        : <div style={{marginTop:'10px', color:'#94a3b8', fontSize:'0.9rem', cursor:'pointer'}} onClick={() => setIsFamilyModalOpen(true)}>+ Utwórz / Dołącz</div>}
+                        {familyData ? <h3 style={{color: 'var(--primary)'}}>{formatCurrency(familyData.familyBalance)}</h3> 
+                        : <div style={{marginTop:'10px', color:'var(--text-secondary)', fontSize:'0.9rem', cursor:'pointer'}} onClick={() => setIsFamilyModalOpen(true)}>+ Utwórz / Dołącz</div>}
                     </div>
                 </div>
 
@@ -185,7 +201,15 @@ const Dashboard = () => {
                                 <div style={{width:'100%', height: 300}}>
                                     <ResponsiveContainer>
                                         <PieChart>
-                                            <Pie data={chartData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
+                                            <Pie 
+                                                data={chartData} 
+                                                cx="50%" 
+                                                cy="50%" 
+                                                innerRadius={60} 
+                                                outerRadius={100} 
+                                                paddingAngle={5} 
+                                                dataKey="value"
+                                            >
                                                 {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                             </Pie>
                                             <Tooltip formatter={(value) => formatCurrency(value)} />
@@ -193,7 +217,7 @@ const Dashboard = () => {
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>
-                            ) : <p style={{color:'#94a3b8', textAlign:'center', marginTop:'2rem'}}>Brak wydatków w wybranym miesiącu 📅</p>}
+                            ) : <p style={{color:'var(--text-secondary)', textAlign:'center', marginTop:'2rem'}}>Brak wydatków w wybranym miesiącu 📅</p>}
                         </section>
 
                         <section className="recent-activity">
@@ -202,16 +226,24 @@ const Dashboard = () => {
                                 <button className="text-btn" onClick={() => navigate('/transactions')}>Pełna historia →</button>
                             </div>
                             <div className="t-list">
-                                {filteredTransactions.slice(0, 5).map(t => (
-                                    <div key={t.id} className="t-row">
-                                        <div className="t-info">
-                                            <strong>{t.shopName}</strong>
-                                            <small>{t.category || 'Inne'} • {formatDate(t.date)}</small>
+                                {filteredTransactions.slice(0, 5).map(t => {
+                                    const IconComponent = CATEGORY_ICONS_QB[t.category] || CATEGORY_ICONS_QB['Inne'];
+                                    return (
+                                        <div key={t.id} className="t-row">
+                                            <div className="t-info" style={{display:'flex', gap:'10px', alignItems:'center'}}>
+                                                <div style={{color:'var(--primary)', background:'var(--primary-light)', padding:'8px', borderRadius:'10px'}}>
+                                                    <IconComponent size={20} />
+                                                </div>
+                                                <div>
+                                                    <strong>{t.shopName}</strong>
+                                                    <small>{t.category || 'Inne'} • {formatDate(t.date)}</small>
+                                                </div>
+                                            </div>
+                                            <strong className="amount-negative">-{formatCurrency(t.totalAmount)}</strong>
                                         </div>
-                                        <strong className="amount-negative">-{formatCurrency(t.totalAmount)}</strong>
-                                    </div>
-                                ))}
-                                {filteredTransactions.length === 0 && <p style={{padding:'10px', color:'#94a3b8'}}>Brak transakcji.</p>}
+                                    );
+                                })}
+                                {filteredTransactions.length === 0 && <p style={{padding:'10px', color:'var(--text-secondary)'}}>Brak transakcji.</p>}
                             </div>
                         </section>
                     </div>
@@ -221,10 +253,9 @@ const Dashboard = () => {
                             <h3>Szybkie akcje</h3>
                             <button className="btn-add" onClick={() => setIsReceiptModalOpen(true)}>+ Dodaj paragon</button>
                             <button className="btn-income" onClick={() => setIsIncomeModalOpen(true)}>💰 Dodaj wypłatę</button>
-                            {familyData && <button className="btn-income" style={{background:'#2563eb'}} onClick={() => setIsFamilyModalOpen(true)}>👨‍👩‍👧‍👦 Zarządzaj rodziną</button>}
+                            {familyData && <button className="btn-income" style={{background:'var(--primary)'}} onClick={() => setIsFamilyModalOpen(true)}>👨‍👩‍👧‍👦 Zarządzaj rodziną</button>}
                         </section>
 
-                        {/* --- NOWA SEKCJA BUDŻETU (Zwijana) --- */}
                         <section className="budget-limits-section">
                             <div 
                                 className="section-header-flex" 
@@ -249,7 +280,6 @@ const Dashboard = () => {
                                             <div key={cat} className="limit-item">
                                                 <div className="limit-header">
                                                     <span className="limit-name">{cat}</span>
-                                                    {/* Kliknięcie otwiera MODAL */}
                                                     <span className="limit-values" onClick={() => openEditLimit(cat)} title="Kliknij, aby edytować">
                                                         {formatCurrency(spent)} / <strong>{formatCurrency(limit)}</strong> ✏️
                                                     </span>
@@ -262,11 +292,6 @@ const Dashboard = () => {
                                     })}
                                 </div>
                             )}
-                            {!isBudgetExpanded && (
-                                <p style={{color:'var(--text-secondary)', fontSize:'0.9rem', marginTop:'10px'}}>
-                                    Rozwiń, aby zarządzać limitami wydatków na poszczególne kategorie.
-                                </p>
-                            )}
                         </section>
                     </div>
                 </div>
@@ -276,7 +301,6 @@ const Dashboard = () => {
             <AddIncomeModal isOpen={isIncomeModalOpen} onClose={() => setIsIncomeModalOpen(false)} onRefresh={fetchData} />
             <FamilyModal isOpen={isFamilyModalOpen} onClose={() => setIsFamilyModalOpen(false)} onRefresh={fetchData} currentFamily={familyData} />
             
-            {/* NOWY MODAL */}
             <EditLimitModal 
                 isOpen={isEditLimitOpen} 
                 onClose={() => setIsEditLimitOpen(false)} 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../config';
-import { CATEGORY_ICONS } from '../../utils/constants'; // Import ikon
+import { CATEGORY_ICONS_QB } from '../../utils/constants'; 
 import './Transactions.css';
 import { toast } from 'react-toastify';
 
@@ -91,57 +91,60 @@ const Transactions = () => {
                     </div>
                 </div>
 
-                <div className="t-list" style={{background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)'}}>
+                <div className="t-list" style={{background: 'var(--bg-card)', padding: '20px', borderRadius: '12px', boxShadow: 'var(--shadow-sm)'}}>
                     {isLoading ? (
                         <div className="loading-state"><span className="spinner">⏳</span> Pobieranie...</div>
                     ) : (
                         <>
                             {filteredReceipts.length > 0 ? (
-                                filteredReceipts.map(r => (
-                                    <div key={r.id} className="transaction-container">
-                                        <div className={`t-row ${expandedId === r.id ? 'expanded' : ''}`}>
-                                            <div className="t-info-group">
-                                                <button onClick={() => toggleDetails(r.id)} className="btn-expand">
-                                                    <span style={{display: 'inline-block', transform: expandedId === r.id ? 'rotate(90deg)' : 'rotate(0deg)', transition: '0.2s'}}>▶</span>
-                                                </button>
-                                                
-                                                {/* Użycie ikon z constants.js */}
-                                                <div style={{fontSize: '1.5rem', marginRight: '10px'}}>
-                                                    {CATEGORY_ICONS[r.category] || '📦'}
-                                                </div>
+                                filteredReceipts.map(r => {
+                                    const IconComponent = CATEGORY_ICONS_QB[r.category] || CATEGORY_ICONS_QB['Inne'];
 
-                                                <div className="t-text">
-                                                    <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
-                                                        <strong>{r.shopName}</strong>
-                                                        {r.isFamilyExpense ? <span className="badge-family">Rodzina</span> : <span className="badge-personal">Osobiste</span>}
+                                    return (
+                                        <div key={r.id} className="transaction-container">
+                                            <div className={`t-row ${expandedId === r.id ? 'expanded' : ''}`}>
+                                                <div className="t-info-group">
+                                                    <button onClick={() => toggleDetails(r.id)} className="btn-expand">
+                                                        <span style={{display: 'inline-block', transform: expandedId === r.id ? 'rotate(90deg)' : 'rotate(0deg)', transition: '0.2s'}}>▶</span>
+                                                    </button>
+                                                    
+                                                    <div style={{fontSize: '1.5rem', marginRight: '10px', color: 'var(--primary)', display: 'flex', alignItems: 'center'}}>
+                                                        <IconComponent size={24} />
                                                     </div>
-                                                    <small>{r.category || 'Brak kategorii'} • {formatDate(r.date)}</small>
+
+                                                    <div className="t-text">
+                                                        <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                                                            <strong>{r.shopName}</strong>
+                                                            {r.isFamilyExpense ? <span className="badge-family">Rodzina</span> : <span className="badge-personal">Osobiste</span>}
+                                                        </div>
+                                                        <small>{r.category || 'Brak kategorii'} • {formatDate(r.date)}</small>
+                                                    </div>
+                                                </div>
+
+                                                <div className="t-actions-group">
+                                                    <strong className="amount-negative">-{formatCurrency(r.totalAmount)}</strong>
+                                                    <button onClick={() => handleDelete(r.id)} className="btn-delete-small">🗑️</button>
                                                 </div>
                                             </div>
 
-                                            <div className="t-actions-group">
-                                                <strong className="amount-negative">-{formatCurrency(r.totalAmount)}</strong>
-                                                <button onClick={() => handleDelete(r.id)} className="btn-delete-small">🗑️</button>
-                                            </div>
+                                            {expandedId === r.id && (
+                                                <div className="receipt-details">
+                                                    <div className="details-header">Produkty:</div>
+                                                    <ul className="details-list">
+                                                        {r.items && r.items.length > 0 ? (
+                                                            r.items.map((item, index) => (
+                                                                <li key={index} className="detail-item">
+                                                                    <span>{item.productName}</span>
+                                                                    <span>{formatCurrency(item.price)}</span>
+                                                                </li>
+                                                            ))
+                                                        ) : <li className="no-items-info">Brak produktów</li>}
+                                                    </ul>
+                                                </div>
+                                            )}
                                         </div>
-
-                                        {expandedId === r.id && (
-                                            <div className="receipt-details">
-                                                <div className="details-header">Produkty:</div>
-                                                <ul className="details-list">
-                                                    {r.items && r.items.length > 0 ? (
-                                                        r.items.map((item, index) => (
-                                                            <li key={index} className="detail-item">
-                                                                <span>{item.productName}</span>
-                                                                <span>{formatCurrency(item.price)}</span>
-                                                            </li>
-                                                        ))
-                                                    ) : <li className="no-items-info">Brak produktów</li>}
-                                                </ul>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))
+                                    );
+                                })
                             ) : <p className="no-data">Brak transakcji pasujących do filtrów.</p>}
                         </>
                     )}

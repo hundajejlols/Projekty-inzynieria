@@ -1,9 +1,8 @@
-/* NAKŁADKA */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background: rgba(15, 23, 42, 0.6); /* Ciemny Slate */
+    background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(4px);
     display: flex;
     justify-content: center;
@@ -12,21 +11,21 @@
     animation: fadeIn 0.2s ease-out;
 }
 
-/* OKNO MODALA */
 .modal-content {
-    background: white;
+    background: var(--bg-card);
     padding: 2rem;
     border-radius: 16px;
     width: 100%;
     max-width: 500px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     animation: scaleIn 0.2s ease-out;
     border: 1px solid var(--border-color);
+    color: var(--text-main);
 }
 
 .modal-header h3 {
     font-size: 1.5rem;
-    color: var(--secondary);
+    color: var(--text-main);
     margin-bottom: 0.5rem;
     font-weight: 700;
 }
@@ -36,7 +35,6 @@
     font-size: 0.9rem;
 }
 
-/* POLA INPUT */
 .field-auth label {
     font-size: 0.8rem;
     font-weight: 600;
@@ -47,14 +45,21 @@
     display: block;
 }
 
-.field-auth input, select {
+/* WAŻNE DLA DARK MODE */
+.field-auth select option {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+}
+
+.field-auth input, 
+.field-auth select {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 0.95rem;
     margin-bottom: 1rem;
-    background: white;
+    background: var(--bg-body);
     color: var(--text-main);
 }
 
@@ -64,9 +69,8 @@
     box-shadow: 0 0 0 3px var(--primary-light);
 }
 
-/* SEKCJA PRODUKTÓW */
 .items-section {
-    background: #f8fafc;
+    background: var(--bg-body);
     padding: 1rem;
     border-radius: 8px;
     margin: 1rem 0;
@@ -83,12 +87,12 @@
 }
 
 .item-row { display: flex; gap: 10px; margin-bottom: 8px; }
-.item-row input { margin-bottom: 0; background: white; }
+.item-row input { margin-bottom: 0; background: var(--bg-card); color: var(--text-main); }
 
 .btn-add-item {
     width: 100%;
     padding: 0.6rem;
-    background: white;
+    background: var(--bg-card);
     border: 1px dashed var(--primary);
     color: var(--primary);
     border-radius: 6px;
@@ -99,7 +103,6 @@
 }
 .btn-add-item:hover { background: var(--primary-light); }
 
-/* PRZYCISKI DOLNE (NAPRAWA BRAKUJĄCEGO TŁA) */
 .modal-footer {
     display: flex;
     gap: 12px;
@@ -108,7 +111,7 @@
 
 .btn-save {
     flex: 2;
-    background-color: var(--primary); /* Używamy zmiennej globalnej */
+    background-color: var(--primary);
     color: white;
     border: none;
     padding: 0.85rem;
@@ -122,7 +125,7 @@
 
 .btn-cancel {
     flex: 1;
-    background: white;
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
     padding: 0.85rem;
@@ -131,7 +134,7 @@
     cursor: pointer;
     transition: 0.2s;
 }
-.btn-cancel:hover { background: #f1f5f9; color: var(--text-main); border-color: #cbd5e1; }
+.btn-cancel:hover { background: var(--bg-body); color: var(--text-main); border-color: #cbd5e1; }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
