@@ -75,17 +75,20 @@ Projekt składa się z dwóch niezależnych części. Uruchom je w osobnych term
 * **Node.js v18+**
 
 ### 1️⃣ Backend (Serwer)
+```bash
 cd Backend-Java
 # Windows
 gradlew.bat bootRun
 # Mac/Linux
 ./gradlew bootRun
 Serwer wystartuje na http://localhost:8080. Baza danych H2 tworzona jest automatycznie w pamięci.
+
 2️⃣ Frontend (Klient)
 cd Frontend-React
 npm install
 npm run dev
 Aplikacja dostępna pod adresem http://localhost:5173.
+
 🧪 Scenariusz Testowy (Dla Recenzenta)
 Rejestracja: Załóż konto (hasło min. 8 znaków).
 
@@ -109,7 +112,9 @@ Sprawdź, czy saldo rodziny zmniejszyło się u obu użytkowników.
 
 🔐 Konfiguracja
 Główne ustawienia (baza danych, tokeny JWT) znajdują się w pliku: Backend-Java/src/main/resources/application.properties
+
+Properties
 spring.datasource.url=jdbc:h2:mem:testdb
 spring.h2.console.enabled=true
 app.jwtSecret=ToJestBardzoTajnyKluczDoPodpisuJWT1234567890
-div align="center"> <sub>Projekt inżynierski © 2026. Stworzony z pasją do czystego kodu.</sub> </div>
+<div align="center"> <sub>Projekt inżynierski © 2026. Stworzony z pasją do czystego kodu.</sub> </div>
