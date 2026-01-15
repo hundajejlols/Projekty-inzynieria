@@ -1,110 +1,142 @@
-# 💰 BudżetDomowy - Next-Gen Finance App
+💰 BudżetDomowy - System Zarządzania Finansami
+BudżetDomowy to nowoczesna aplikacja typu Full-Stack służąca do kompleksowego zarządzania finansami osobistymi oraz współdzielonym budżetem rodzinnym. Projekt wyróżnia się nowoczesnym interfejsem (React + Vite), zaawansowanym backendem (Spring Boot + Java 25) oraz unikalnymi funkcjami społecznościowymi (rodziny).
 
-![Project Banner](https://via.placeholder.com/1200x400?text=Budżet+Domowy+2.0+-+Zarządzanie+Finansami)
+🌟 Kluczowe Funkcjonalności
+💸 Zarządzanie Wydatkami
+Dodawanie Paragonów: Rejestrowanie wydatków z podziałem na pozycje (produkty) i kategorie.
 
-> Nowoczesna, pełnowymiarowa aplikacja webowa (Full-Stack) do zarządzania budżetem osobistym oraz **współdzielonym budżetem rodzinnym**. Projekt wyróżnia się zaawansowanym interfejsem użytkownika (Glassmorphism, 3D), bezpieczeństwem danych i bogatą funkcjonalnością analityczną.
+Kategorie: Predefiniowane kategorie (Jedzenie, Transport, Dom, Zdrowie, Rozrywka, itp.).
 
----
+Limity Budżetowe: Definiowanie miesięcznych limitów dla każdej kategorii z wizualizacją postępu (paski zużycia).
 
-## 🌟 Kluczowe Funkcjonalności
+Historia: Pełna lista transakcji z możliwością filtrowania, edycji i usuwania.
 
-### 🎨 Nowoczesny Interfejs (UI/UX)
-* **3D Flip Card Login:** Unikalny ekran logowania i rejestracji z animacją obrotu karty 3D i żywym tłem typu "Aurora".
-* **Glassmorphism Dashboard:** Pulpit nawigacyjny wykorzystujący efekty rozmycia i półprzezroczystości, zapewniający czytelność i nowoczesny wygląd.
-* **Responsywność:** Aplikacja dostosowana do urządzeń mobilnych i desktopowych.
-* **Powiadomienia Toast:** Eleganckie, dymkowe powiadomienia o sukcesach i błędach (zamiast systemowych alertów).
+👨‍👩‍👧‍👦 Moduł Rodzinny (Unikalna cecha!)
+Wspólny Portfel: Możliwość utworzenia Rodziny lub dołączenia do istniejącej za pomocą Kodu Zaproszenia.
 
-### 👨‍👩‍👧‍👦 Moduł Rodzinny (Unikalna cecha!)
-* **Wspólny Portfel:** Możliwość utworzenia nowej rodziny lub dołączenia do istniejącej za pomocą unikalnego kodu (np. `A1B2-C3D4`).
-* **Dwa Tryby Wydatków:** Podczas dodawania paragonu decydujesz: płacisz ze swojego konta czy z konta rodzinnego?
-* **Zarządzanie Środkami:** Możliwość zasilania (przelewania) środków z konta prywatnego na wspólne konto rodzinne.
+Współdzielenie Kosztów: Podczas dodawania paragonu decydujesz, czy płacisz z konta prywatnego, czy ze środków rodziny.
 
-### 📊 Analiza i Zarządzanie
-* **Filtrowanie Czasowe:** Przeglądanie historii transakcji i wykresów w ujęciu miesięcznym (wybierak daty).
-* **Eksport do CSV:** Możliwość pobrania historii przefiltrowanych transakcji do pliku Excel/CSV jednym kliknięciem.
-* **Wizualizacja:** Interaktywne wykresy kołowe (Recharts) pokazujące strukturę wydatków według kategorii.
-* **Limity Budżetowe:** Paski postępu pokazujące zużycie budżetu w poszczególnych kategoriach (np. Jedzenie, Transport).
+Transfery: Błyskawiczne zasilanie konta rodzinnego z konta prywatnego.
 
-### 🛡️ Bezpieczeństwo i Backend
-* **Walidacja Danych:** Zabezpieczenie przed duplikatami loginów/emaili oraz wymuszanie silnych haseł.
-* **Global Exception Handling:** Centralna obsługa błędów na backendzie, zwracająca czytelne komunikaty do frontendu.
-* **Architektura:** Czysty podział na warstwy (Controller, Service, Repository, Model).
+Zarządzanie: Właściciel rodziny może usuwać członków lub rozwiązać grupę.
 
----
+📊 Analiza i Dashboard
+Wykresy: Interaktywny wykres kołowy (Recharts) pokazujący strukturę wydatków w wybranym miesiącu.
 
-## 🛠️ Stack Technologiczny
+Filtrowanie Czasowe: Przeglądanie danych historycznych za pomocą wygodnego selektora daty.
 
-### Backend (Java Ecosystem)
-* **Język:** Java 25 (Latest LTS/Feature release)
-* **Framework:** Spring Boot 4.0.0
-* **Baza Danych:** H2 Database (In-Memory, szybka i lekka)
-* **ORM:** Spring Data JPA (Hibernate)
-* **Bezpieczeństwo:** Spring Security (BCrypt Password Hashing)
-* **Build Tool:** Gradle
+Eksport Danych: Możliwość pobrania historii transakcji do pliku CSV.
 
-### Frontend (React Ecosystem)
-* **Framework:** React 19 + Vite
-* **Komunikacja:** Axios (HTTP Client)
-* **Wykresy:** Recharts
-* **UI Components:** React-Toastify
-* **Style:** Custom CSS 3 (CSS Variables, Flexbox, Grid, Animations, 3D Transforms)
+⚙️ Personalizacja i Bezpieczeństwo
+Motywy: Pełne wsparcie dla Trybu Ciemnego (Dark Mode) i Jasnego.
 
----
+Waluty: Obsługa wielu walut (PLN, USD, EUR) z automatycznym przeliczaniem w interfejsie.
 
-## 🚀 Instrukcja Uruchomienia
+Bezpieczeństwo: Rejestracja, logowanie (JWT Token), hashowanie haseł (BCrypt) oraz mechanizm resetowania hasła.
 
-Projekt składa się z dwóch niezależnych części: serwera API oraz klienta React. Należy uruchomić je w osobnych terminalach.
+🛠️ Stack Technologiczny
+Backend (Java Ecosystem)
+Język: Java 25 (Latest Features)
 
-### Krok 1: Backend (Serwer)
-1.  Otwórz terminal w folderze projektu.
-2.  Przejdź do katalogu backendu:
-    ```bash
-    cd Backend-Java
-    ```
-3.  Uruchom aplikację za pomocą Gradle Wrapper:
-    * **Windows:** `gradlew.bat bootRun`
-    * **Mac/Linux:** `./gradlew bootRun`
-4.  Serwer wystartuje na porcie `8080`.
+Framework: Spring Boot 4.0.0
 
-### Krok 2: Frontend (Klient)
-1.  Otwórz **nowe** okno terminala.
-2.  Przejdź do katalogu frontendu:
-    ```bash
-    cd Frontend-React
-    ```
-3.  Zainstaluj zależności (wymagane tylko przy pierwszym uruchomieniu):
-    ```bash
-    npm install
-    ```
-4.  Uruchom serwer deweloperski:
-    ```bash
-    npm run dev
-    ```
-5.  Aplikacja będzie dostępna pod adresem: `http://localhost:5173`
+Baza Danych: H2 Database (In-Memory, tryb deweloperski)
 
----
+ORM: Spring Data JPA (Hibernate)
 
-## 🧪 Scenariusz Testowy (Dla Recenzenta)
+Security: Spring Security + JWT Authentication
 
-Aby w pełni przetestować możliwości aplikacji, wykonaj poniższe kroki:
+Testy: JUnit 5, Mockito
 
-1.  **Rejestracja Rodziców:**
-    * Zarejestruj użytkownika `Jan` (hasło min. 8 znaków).
-    * Zarejestruj użytkownika `Anna`.
-2.  **Tworzenie Rodziny (Jan):**
-    * Zaloguj się jako `Jan`.
-    * Dodaj przychód (np. 5000 PLN).
-    * Wejdź w zakładkę **Rodzina** -> "Utwórz nową rodzinę" (np. "Kowalscy").
-    * Skopiuj wygenerowany **Kod Zaproszenia**.
-    * Wpłać 2000 PLN na konto rodzinne ("Zasil konto rodziny").
-3.  **Dołączanie (Anna):**
-    * Zaloguj się jako `Anna` (w innej karcie/przeglądarce).
-    * Wejdź w zakładkę **Rodzina** -> "Dołącz kodem". Wklej kod od Jana.
-    * Zauważ, że Anna widzi teraz "Budżet Rodzinny: 2000 PLN".
-4.  **Wspólne Wydatki:**
-    * Jako `Anna` dodaj paragon (np. "Biedronka", 200 PLN).
-    * Zaznacz checkbox: **"👨‍👩‍👧‍👦 To wydatek z konta Rodziny"**.
-    * Sprawdź Dashboard: Saldo rodziny spadło do 1800 PLN (zarówno u Anny, jak i u Jana).
-5.  **Analiza i Eksport:**
-    * Zmień miesiąc w filtrze na górze ekranu (zobaczysz brak danych dla innych miesięcy).
-    * Kliknij przycisk **"📥 Eksportuj CSV"** w menu bocznym, aby pobrać raport.
+Frontend (React Ecosystem)
+Framework: React 19 + Vite
+
+Biblioteki UI: Lucide React (ikony), React Toastify (powiadomienia)
+
+Wykresy: Recharts
+
+Komunikacja: Axios (z interceptorami do obsługi tokenów)
+
+Style: Custom CSS z wykorzystaniem zmiennych CSS (dla łatwej obsługi motywów)
+
+🚀 Instrukcja Uruchomienia
+Projekt składa się z dwóch części: serwera (Backend-Java) oraz klienta (Frontend-React).
+
+Wymagania wstępne
+Java JDK 25 (Wymagane ze względu na konfigurację Gradle)
+
+Node.js (v18 lub nowszy)
+
+1. Uruchomienie Backendu
+Przejdź do katalogu backendu:
+
+cd Backend-Java
+Uruchom aplikację (baza danych zostanie utworzona automatycznie w pamięci):
+
+Windows:
+gradlew.bat bootRun
+
+Linux/Mac:
+./gradlew bootRun
+Serwer wystartuje na porcie 8080.
+
+Konsola H2 dostępna pod: http://localhost:8080/h2-console (User: sa, Password: password)
+
+2. Uruchomienie Frontendu
+Otwórz nowy terminal i przejdź do katalogu frontendu:
+
+
+cd Frontend-React
+Zainstaluj zależności:
+
+
+npm install
+Uruchom serwer deweloperski:
+
+
+npm run dev
+Aplikacja będzie dostępna pod adresem: http://localhost:5173
+
+🧪 Przykładowy Scenariusz Użycia
+Rejestracja: Załóż konto (hasło min. 8 znaków).
+
+Dodanie środków: Na Dashboardzie kliknij "Dodaj wypłatę", aby zasilić swoje konto.
+
+Tworzenie Rodziny:
+
+Wejdź w zakładkę "Rodzina" i utwórz nową grupę.
+
+Skopiuj Kod Zaproszenia i przekaż go innemu użytkownikowi.
+
+Wspólne Wydatki:
+
+Dodaj paragon klikając "+ Dodaj paragon".
+
+Zaznacz opcję "To wydatek z konta Rodziny".
+
+Zobaczysz, że saldo rodziny zmalało, a transakcja oznaczona jest jako rodzinna.
+
+Reset Hasła:
+
+Na ekranie logowania wybierz "Zapomniałeś hasła?".
+
+Token resetujący pojawi się w konsoli serwera Backend (symulacja wysyłki e-mail).
+
+📂 Struktura Projektu
+projekty-inzynieria/
+├── Backend-Java/           # Serwer Spring Boot
+│   ├── src/main/java/      # Kod źródłowy Java (Controllers, Services, Models)
+│   └── src/main/resources/ # Konfiguracja (application.properties)
+│
+└── Frontend-React/         # Klient React
+    ├── src/components/     # Komponenty globalne (np. ProtectedRoute)
+    ├── src/pages/          # Widoki (Dashboard, Login, Transactions, Family)
+    └── src/utils/          # Stałe i pomocnicze funkcje
+🔐 Konfiguracja
+Domyślne ustawienia znajdują się w pliku Backend-Java/src/main/resources/application.properties. Możesz tam zmienić:
+
+Dane do bazy H2.
+
+Sekretny klucz JWT (app.jwtSecret).
+
+Autor: Mateusz Janusz,Arkadiusz Matuszewski,Łukasz Malarczuk,Jan Dołżycki Licencja: MIT
