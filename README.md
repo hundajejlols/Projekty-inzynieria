@@ -1,7 +1,4 @@
 <div align="center">
-
-  <img src="https://via.placeholder.com/1200x400?text=Budżet+Domowy+2.0+-+Zarządzanie+Finansami" alt="Budżet Domowy Banner" width="100%" />
-
   # 💰 BudżetDomowy 2.0
   
   **Nowoczesna platforma Full-Stack do zarządzania finansami osobistymi i rodzinnymi.**
