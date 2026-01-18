@@ -22,8 +22,12 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh, initialData = null }) => 
         if (isOpen) {
             axios.get(`${API_URL}/categories`)
                 .then(res => {
-                    setCategoriesList(res.data);
-                    if(res.data.length > 0 && !initialData) setCategory(res.data[0]);
+                    // Backend może zwrócić obiekty lub stringi - normalizujemy do stringów
+                    const categories = res.data.map(cat => 
+                        typeof cat === 'string' ? cat : cat.name || cat.categoryName || String(cat)
+                    );
+                    setCategoriesList(categories);
+                    if(categories.length > 0 && !initialData) setCategory(categories[0]);
                 })
                 .catch(() => {
                     setCategoriesList(['Inne']);
@@ -49,12 +53,19 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh, initialData = null }) => 
                 setIsFamilyExpense(false);
             }
         }
-    }, [isOpen, initialData]);
+    }, [isOpen, initialData, rate]);
 
     if (!isOpen) return null;
 
     const handleAddItem = () => {
         setItems([...items, { productName: '', price: 0 }]);
+    };
+
+    const handleRemoveItem = (index) => {
+        if (items.length > 1) {
+            const newItems = items.filter((_, i) => i !== index);
+            setItems(newItems);
+        }
     };
 
     const handleItemChange = (index, field, value) => {
@@ -63,14 +74,49 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh, initialData = null }) => 
         setItems(newItems);
     };
 
+    const handleClose = () => {
+        onClose();
+        // Reset formularza po zamknięciu
+        setTimeout(() => {
+            if (!initialData) {
+                setShopName('');
+                setDate(new Date().toISOString().split('T')[0]);
+                setItems([{ productName: '', price: 0 }]);
+                setIsFamilyExpense(false);
+            }
+        }, 300);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
+        // Walidacja - sprawdź czy są produkty
+        if (items.length === 0 || items.every(item => !item.productName.trim())) {
+            toast.warn("Dodaj przynajmniej jeden produkt!");
+            return;
+        }
+        
         const totalInUserCurrency = items.reduce((sum, item) => sum + item.price, 0);
+        
+        if (totalInUserCurrency <= 0) {
+            toast.warn("Całkowita kwota musi być większa od 0!");
+            return;
+        }
+        
         const totalInBaseCurrency = totalInUserCurrency * rate;
-        const itemsInBaseCurrency = items.map(item => ({...item, price: item.price * rate}));
+        const itemsInBaseCurrency = items.map(item => ({
+            productName: item.productName,
+            price: item.price * rate
+        }));
 
-        const payload = { shopName, date, category, totalAmount: totalInBaseCurrency, items: itemsInBaseCurrency, isFamilyExpense };
+        const payload = { 
+            shopName, 
+            date, 
+            category, 
+            totalAmount: totalInBaseCurrency, 
+            items: itemsInBaseCurrency, 
+            isFamilyExpense 
+        };
 
         try {
             if (initialData) {
@@ -78,12 +124,15 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh, initialData = null }) => 
                 toast.success("Transakcja zaktualizowana!");
             } else {
                 await axios.post(`${API_URL}/receipts/${userName}`, payload);
-                toast.success("Dodano!");
+                toast.success("Dodano paragon!");
             }
-            // Najpierw odświeżamy listę, potem zamykamy
-            await onRefresh(); 
-            onClose();
-        } catch (err) { toast.error("Błąd zapisu"); }
+            onRefresh(); 
+            handleClose();
+        } catch (err) { 
+            console.error("Błąd zapisu paragonu:", err);
+            const errorMessage = err.response?.data?.message || err.response?.data?.error || "Błąd podczas zapisywania paragonu";
+            toast.error(errorMessage);
+        }
     };
     
     return (
@@ -95,7 +144,7 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh, initialData = null }) => 
                         <h3>{initialData ? '✏️ Edytuj Paragon' : '🧾 Nowy Paragon'} ({userCurrency})</h3>
                         <p className="modal-subtitle">Uzupełnij szczegóły wydatku</p>
                     </div>
-                    <button onClick={onClose} style={{background:'none', border:'none', cursor:'pointer', color:'var(--text-secondary)'}}>
+                    <button onClick={handleClose} style={{background:'none', border:'none', cursor:'pointer', color:'var(--text-secondary)'}}>
                         <X size={24} />
                     </button>
                 </div>
@@ -139,9 +188,42 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh, initialData = null }) => 
                         </div>
                         <div style={{maxHeight: '200px', overflowY: 'auto', marginBottom: '10px', paddingRight:'5px'}}>
                             {items.map((item, index) => (
-                                <div key={index} className="item-row">
-                                    <input type="text" placeholder="Nazwa" value={item.productName} onChange={(e) => handleItemChange(index, 'productName', e.target.value)} required />
-                                    <input type="number" step="0.01" placeholder="Cena" value={item.price === 0 ? '' : item.price} onChange={(e) => handleItemChange(index, 'price', e.target.value)} required />
+                                <div key={index} className="item-row" style={{display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px'}}>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Nazwa produktu" 
+                                        value={item.productName} 
+                                        onChange={(e) => handleItemChange(index, 'productName', e.target.value)} 
+                                        required 
+                                        style={{flex: 2}}
+                                    />
+                                    <input 
+                                        type="number" 
+                                        step="0.01" 
+                                        placeholder="Cena" 
+                                        value={item.price === 0 ? '' : item.price} 
+                                        onChange={(e) => handleItemChange(index, 'price', e.target.value)} 
+                                        required 
+                                        style={{flex: 1}}
+                                    />
+                                    {items.length > 1 && (
+                                        <button 
+                                            type="button" 
+                                            onClick={() => handleRemoveItem(index)}
+                                            style={{
+                                                background: 'var(--danger)', 
+                                                color: 'white', 
+                                                border: 'none', 
+                                                borderRadius: '6px', 
+                                                padding: '8px 12px', 
+                                                cursor: 'pointer',
+                                                fontSize: '0.9rem'
+                                            }}
+                                            title="Usuń produkt"
+                                        >
+                                            🗑️
+                                        </button>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -150,7 +232,7 @@ const AddReceiptModal = ({ isOpen, onClose, onRefresh, initialData = null }) => 
 
                     <div className="modal-footer">
                         <button type="submit" className="btn-save">{initialData ? 'Zapisz zmiany' : 'Dodaj'}</button>
-                        <button type="button" className="btn-cancel" onClick={onClose}>Anuluj</button>
+                        <button type="button" className="btn-cancel" onClick={handleClose}>Anuluj</button>
                     </div>
                 </form>
             </div>
